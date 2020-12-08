@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wzp.oauth2.mapper.FileListMapper">
+
+    <resultMap id="BaseResultMap" type="org.wzp.oauth2.entity.FileList">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+        <result column="file_name" jdbcType="VARCHAR" property="fileName"/>
+        <result column="file_size" jdbcType="BIGINT" property="fileSize"/>
+        <result column="removed" jdbcType="BIT" property="removed"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, created_time, updated_time, file_name, file_size, removed
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from file_list
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from file_list
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.wzp.oauth2.entity.FileList"
+            useGeneratedKeys="true">
+    insert into file_list (created_time, updated_time, file_name,
+      file_size, removed)
+    values (#{createdTime,jdbcType=TIMESTAMP}, #{updatedTime,jdbcType=TIMESTAMP}, #{fileName,jdbcType=VARCHAR},
+      #{fileSize,jdbcType=BIGINT}, #{removed,jdbcType=BIT})
+  </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.wzp.oauth2.entity.FileList"
+            useGeneratedKeys="true">
+        insert into file_list
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createdTime != null">
+                created_time,
+            </if>
+            <if test="updatedTime != null">
+                updated_time,
+            </if>
+            <if test="fileName != null">
+                file_name,
+            </if>
+            <if test="fileSize != null">
+                file_size,
+            </if>
+            <if test="removed != null">
+              removed,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="createdTime != null">
+                #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updatedTime != null">
+                #{updatedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="fileName != null">
+                #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSize != null">
+                #{fileSize,jdbcType=BIGINT},
+            </if>
+            <if test="removed != null">
+                #{removed,jdbcType=BIT},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.wzp.oauth2.entity.FileList">
+        update file_list
+        <set>
+            <if test="createdTime != null">
+                created_time = #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updatedTime != null">
+                updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="fileName != null">
+                file_name = #{fileName,jdbcType=VARCHAR},
+            </if>
+            <if test="fileSize != null">
+                file_size = #{fileSize,jdbcType=BIGINT},
+            </if>
+            <if test="removed != null">
+              removed = #{removed,jdbcType=BIT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="org.wzp.oauth2.entity.FileList">
+    update file_list
+    set created_time = #{createdTime,jdbcType=TIMESTAMP},
+      updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      file_size = #{fileSize,jdbcType=BIGINT},
+      removed = #{removed,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+
+    <!-- 条件查询 -->
+    <select id="findAllBySome" parameterType="hashMap" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from file_list
+        where 1=1
+        <if test="fileName != null and fileName != ''">
+            AND file_name Like CONCAT('%',#{fileName, jdbcType=VARCHAR},'%')
+        </if>
+        <if test="removed != null and removed != '' ">
+            AND removed = #{removed,jdbcType=BIT}
+        </if>
+    </select>
+
+</mapper>

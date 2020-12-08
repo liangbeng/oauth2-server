@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wzp.oauth2.mapper.LoginLogMapper">
+
+    <resultMap id="BaseResultMap" type="org.wzp.oauth2.entity.LoginLog">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="created_time" jdbcType="BIGINT" property="createdTime"/>
+        <result column="updated_time" jdbcType="BIGINT" property="updatedTime"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="detail" jdbcType="VARCHAR" property="detail"/>
+        <result column="login_ip" jdbcType="VARCHAR" property="loginIp"/>
+        <result column="login_log_enum" jdbcType="VARCHAR" property="loginLogEnum"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, created_time, updated_time, user_id, username, detail, login_ip, login_log_enum
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from login_log
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from login_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.wzp.oauth2.entity.LoginLog"
+            useGeneratedKeys="true">
+    insert into login_log (created_time, updated_time, user_id,
+      username, detail, login_ip,
+      login_log_enum)
+    values (#{createdTime,jdbcType=BIGINT}, #{updatedTime,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
+      #{username,jdbcType=VARCHAR}, #{detail,jdbcType=VARCHAR}, #{loginIp,jdbcType=VARCHAR},
+      #{loginLogEnum,jdbcType=VARCHAR})
+  </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.wzp.oauth2.entity.LoginLog"
+            useGeneratedKeys="true">
+        insert into login_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createdTime != null">
+                created_time,
+            </if>
+            <if test="updatedTime != null">
+                updated_time,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="username != null">
+                username,
+            </if>
+            <if test="detail != null">
+                detail,
+            </if>
+            <if test="loginIp != null">
+                login_ip,
+            </if>
+            <if test="loginLogEnum != null">
+                login_log_enum,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="createdTime != null">
+                #{createdTime,jdbcType=BIGINT},
+            </if>
+            <if test="updatedTime != null">
+                #{updatedTime,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="username != null">
+                #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="detail != null">
+                #{detail,jdbcType=VARCHAR},
+            </if>
+            <if test="loginIp != null">
+                #{loginIp,jdbcType=VARCHAR},
+            </if>
+            <if test="loginLogEnum != null">
+                #{loginLogEnum,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.wzp.oauth2.entity.LoginLog">
+        update login_log
+        <set>
+            <if test="createdTime != null">
+                created_time = #{createdTime,jdbcType=BIGINT},
+            </if>
+            <if test="updatedTime != null">
+                updated_time = #{updatedTime,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="username != null">
+                username = #{username,jdbcType=VARCHAR},
+            </if>
+            <if test="detail != null">
+                detail = #{detail,jdbcType=VARCHAR},
+            </if>
+            <if test="loginIp != null">
+                login_ip = #{loginIp,jdbcType=VARCHAR},
+            </if>
+            <if test="loginLogEnum != null">
+                login_log_enum = #{loginLogEnum,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="org.wzp.oauth2.entity.LoginLog">
+    update login_log
+    set created_time = #{createdTime,jdbcType=BIGINT},
+      updated_time = #{updatedTime,jdbcType=BIGINT},
+      user_id = #{userId,jdbcType=BIGINT},
+      username = #{username,jdbcType=VARCHAR},
+      detail = #{detail,jdbcType=VARCHAR},
+      login_ip = #{loginIp,jdbcType=VARCHAR},
+      login_log_enum = #{loginLogEnum,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wzp.oauth2.mapper.EmailMsgLogMapper">
+
+    <resultMap id="BaseResultMap" type="org.wzp.oauth2.entity.EmailMsgLog">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="created_time" jdbcType="TIMESTAMP" property="createdTime"/>
+        <result column="updated_time" jdbcType="TIMESTAMP" property="updatedTime"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="email_enum" jdbcType="VARCHAR" property="emailEnum"/>
+        <result column="exchange" jdbcType="VARCHAR" property="exchange"/>
+        <result column="routing_key" jdbcType="VARCHAR" property="routingKey"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="try_count" jdbcType="INTEGER" property="tryCount"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    id, created_time, updated_time, title, email, content, email_enum, exchange, routing_key,
+    `status`, try_count
+  </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from email_msg_log
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from email_msg_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.wzp.oauth2.entity.EmailMsgLog"
+            useGeneratedKeys="true">
+    insert into email_msg_log (created_time, updated_time, title,
+      email, content, email_enum,
+      exchange, routing_key, `status`,
+      try_count)
+    values (#{createdTime,jdbcType=TIMESTAMP}, #{updatedTime,jdbcType=TIMESTAMP}, #{title,jdbcType=VARCHAR},
+      #{email,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{emailEnum,jdbcType=VARCHAR},
+      #{exchange,jdbcType=VARCHAR}, #{routingKey,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER},
+      #{tryCount,jdbcType=INTEGER})
+  </insert>
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.wzp.oauth2.entity.EmailMsgLog"
+            useGeneratedKeys="true">
+        insert into email_msg_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createdTime != null">
+                created_time,
+            </if>
+            <if test="updatedTime != null">
+                updated_time,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="email != null">
+                email,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="emailEnum != null">
+                email_enum,
+            </if>
+            <if test="exchange != null">
+                exchange,
+            </if>
+            <if test="routingKey != null">
+                routing_key,
+            </if>
+            <if test="status != null">
+                `status`,
+            </if>
+            <if test="tryCount != null">
+                try_count,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="createdTime != null">
+                #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updatedTime != null">
+                #{updatedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="emailEnum != null">
+                #{emailEnum,jdbcType=VARCHAR},
+            </if>
+            <if test="exchange != null">
+                #{exchange,jdbcType=VARCHAR},
+            </if>
+            <if test="routingKey != null">
+                #{routingKey,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="tryCount != null">
+                #{tryCount,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.wzp.oauth2.entity.EmailMsgLog">
+        update email_msg_log
+        <set>
+            <if test="createdTime != null">
+                created_time = #{createdTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updatedTime != null">
+                updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null">
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="emailEnum != null">
+                email_enum = #{emailEnum,jdbcType=VARCHAR},
+            </if>
+            <if test="exchange != null">
+                exchange = #{exchange,jdbcType=VARCHAR},
+            </if>
+            <if test="routingKey != null">
+                routing_key = #{routingKey,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                `status` = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="tryCount != null">
+                try_count = #{tryCount,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="org.wzp.oauth2.entity.EmailMsgLog">
+    update email_msg_log
+    set created_time = #{createdTime,jdbcType=TIMESTAMP},
+      updated_time = #{updatedTime,jdbcType=TIMESTAMP},
+      title = #{title,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      content = #{content,jdbcType=VARCHAR},
+      email_enum = #{emailEnum,jdbcType=VARCHAR},
+      exchange = #{exchange,jdbcType=VARCHAR},
+      routing_key = #{routingKey,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=INTEGER},
+      try_count = #{tryCount,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+</mapper>
