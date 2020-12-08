@@ -54,7 +54,7 @@ public class Knife4jConfiguration {
      */
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("接口文档")
+                .title("oauth2 项目接口文档")
                 .description("文档描述")
                 .contact(new Contact("南风落尽", null, "wzp9215@qq.com"))
                 .version("1.0")
