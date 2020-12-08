@@ -13,10 +13,10 @@ import springfox.documentation.oas.annotations.EnableOpenApi;
 @EnableCaching  //开启缓存
 @SpringBootApplication
 @MapperScan("org.wzp.oauth2.mapper")//添加Mapper所在的包路径 否则无法加载 Mppaer bean
-public class AuthServerApplication {
+public class Oauth2ServerApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(AuthServerApplication.class, args);
+        SpringApplication.run(Oauth2ServerApplication.class, args);
     }
 
     @Bean

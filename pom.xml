@@ -9,9 +9,9 @@
         <relativePath/>
     </parent>
     <groupId>org.wzp.oauth2</groupId>
-    <artifactId>auth-server</artifactId>
+    <artifactId>oauth2-server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>auth</name>
+    <name>oauth2-server</name>
     <description>Demo project for Spring Boot</description>
 
     <dependencies>
