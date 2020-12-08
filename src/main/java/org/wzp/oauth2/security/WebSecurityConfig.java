@@ -35,16 +35,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
 
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().formLogin();
     }
+
 
     /**
      * 通过数据库查找用户
@@ -56,6 +59,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.userDetailsService(userDetailsService());
 //        auth.inMemoryAuthentication().withUser("wzp").password(new BCryptPasswordEncoder().encode("123456")).roles("admin"); //将用户写在内存里
     }
+
+
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
