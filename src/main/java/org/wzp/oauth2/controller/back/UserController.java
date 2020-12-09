@@ -281,15 +281,19 @@ public class UserController extends BaseConfig {
         if (user == null) {
             return Result.error(ResultCodeEnum.PARAM_ERROR);
         }
-        boolean flag = new BCryptPasswordEncoder().matches(updatePasswordVO.getOldPassword(), user.getPassword());
+        String oldPassword = updatePasswordVO.getOldPassword();
+        String newPassword = updatePasswordVO.getNewPassword();
+        String oldPasswordStr = user.getPassword();
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        boolean flag = bCryptPasswordEncoder.matches(oldPassword, oldPasswordStr);
         if (!flag) {
             return Result.error(ResultCodeEnum.OLD_PASSWORD_ERROR);
         }
-        boolean flag1 = new BCryptPasswordEncoder().matches(updatePasswordVO.getNewPassword(), user.getPassword());
+        boolean flag1 = bCryptPasswordEncoder.matches(newPassword, oldPasswordStr);
         if (flag1) {
             return Result.error(ResultCodeEnum.NEW_PASSWORD_HAS_SAME);
         }
-        user.setPassword(new BCryptPasswordEncoder().encode(updatePasswordVO.getNewPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userMapper.updateByPrimaryKeySelective(user);
         redisService.loginOut(user.getUsername());
         return Result.ok();
@@ -307,12 +311,16 @@ public class UserController extends BaseConfig {
         if (user == null) {
             return Result.error(ResultCodeEnum.PARAM_ERROR);
         }
-        boolean flag1 = new BCryptPasswordEncoder().matches(updatePasswordVO.getNewPassword(), user.getPassword());
-        if (flag1) {
+        String newPassword = updatePasswordVO.getNewPassword();
+        String oldPassword = user.getPassword();
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        boolean flag = bCryptPasswordEncoder.matches(newPassword, oldPassword);
+        if (flag) {
             return Result.error(ResultCodeEnum.PASSWORD_HAS_SAME);
         }
-        user.setPassword(new BCryptPasswordEncoder().encode(updatePasswordVO.getNewPassword()));
+        user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userMapper.updateByPrimaryKeySelective(user);
+        redisService.loginOut(user.getUsername());
         return Result.ok();
     }
 
