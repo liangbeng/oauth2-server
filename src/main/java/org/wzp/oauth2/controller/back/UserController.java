@@ -1,5 +1,8 @@
 package org.wzp.oauth2.controller.back;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageInfo;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
@@ -356,9 +359,9 @@ public class UserController extends BaseConfig {
             //读取第一个sheet
             Sheet sheet = wb.getSheetAt(0);
             //获取一共多少行
-            int lastRowNum = sheet.getLastRowNum();
+            int rowNumber = sheet.getLastRowNum();
             //遍历sheet，保存用户
-            excelService.setUserExcelData(sheet, lastRowNum);
+            excelService.setUserExcelData(sheet, rowNumber);
         } catch (Exception e) {
             throw e;
         }

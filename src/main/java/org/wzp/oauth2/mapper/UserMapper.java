@@ -1,5 +1,6 @@
 package org.wzp.oauth2.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.wzp.oauth2.entity.User;
@@ -7,7 +8,7 @@ import org.wzp.oauth2.entity.User;
 import java.util.HashMap;
 import java.util.List;
 
-public interface UserMapper {
+public interface UserMapper extends BaseMapper<User> {
 
     @CacheEvict(value = "userList", allEntries = true)
     int deleteByPrimaryKey(Long id);

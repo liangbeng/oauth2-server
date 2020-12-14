@@ -29,6 +29,7 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
     private UserMapper userMapper;
 
 
+    @Override
     public boolean getUserExcelData(List<User> list) {
         List<List<Object>> rows = new ArrayList();
         for (User user : list) {
@@ -66,6 +67,7 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
     }
 
 
+    @Override
     public void setUserExcelData(Sheet sheet, int lastRowNum) {
         for (int i = 1; i <= lastRowNum; i++) {
             Row row = sheet.getRow(i);

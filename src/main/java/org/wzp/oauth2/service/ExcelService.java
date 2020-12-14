@@ -11,7 +11,20 @@ import java.util.List;
  */
 public interface ExcelService {
 
+    /**
+     * 将表数据导出为excel
+     *
+     * @param list 用户列表
+     * @return 返回值 true false
+     */
     boolean getUserExcelData(List<User> list);
 
-    void setUserExcelData(Sheet sheet, int lastRowNum);
+
+    /**
+     * 将excel数据导入表中
+     *
+     * @param sheet     excel数据
+     * @param rowNumber 总行数
+     */
+    void setUserExcelData(Sheet sheet, int rowNumber);
 }

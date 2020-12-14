@@ -6,7 +6,10 @@ import org.wzp.oauth2.enumeration.ResultCodeEnum;
 
 import java.io.Serializable;
 
-
+/**
+ * @Author: zp.wei
+ * @DATE: 2020/10/16 16:05
+ */
 @Data
 public class Result<T> implements Serializable {
 
