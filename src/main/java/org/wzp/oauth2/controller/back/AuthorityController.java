@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wzp.oauth2.config.BaseConfig;
-import org.wzp.oauth2.util.Result;
 import org.wzp.oauth2.entity.Authority;
 import org.wzp.oauth2.entity.RoleAuthority;
 import org.wzp.oauth2.enumeration.ResultCodeEnum;
 import org.wzp.oauth2.mapper.AuthorityMapper;
 import org.wzp.oauth2.mapper.RoleAuthorityMapper;
-import org.wzp.oauth2.service.RedisService;
+import org.wzp.oauth2.util.RedisUtil;
+import org.wzp.oauth2.util.Result;
 import org.wzp.oauth2.util.StringUtil;
 import org.wzp.oauth2.vo.AuthorityVO;
 import org.wzp.oauth2.vo.IdVO;
@@ -44,7 +44,7 @@ public class AuthorityController extends BaseConfig {
     @Resource
     private RoleAuthorityMapper roleAuthorityMapper;
     @Resource
-    private RedisService redisService;
+    private RedisUtil redisUtil;
 
 
     @ApiOperation("新增权限")
@@ -131,21 +131,20 @@ public class AuthorityController extends BaseConfig {
     })
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/findAll")
-    public Result<PageInfo> findAll(@RequestBody HashMap<String, Object> map) {
+    public Result<PageInfo<List<Authority>>> findAll(@RequestBody HashMap<String, Object> map) {
         getPageRequest(map);
-        //判断key是否存在，存在则从redis取，不存在则查询数据库
         String key = getKey("authorityList", map);
-        boolean hasKey = redisService.hasKey(key);
+        boolean hasKey = redisUtil.hasKey(key);
         PageInfo pageInfo;
         if (hasKey) {
-            pageInfo = (PageInfo) redisService.get(key);
+            pageInfo = (PageInfo) redisUtil.get(key);
         } else {
             if (!StringUtil.isEmpty(map.get("name"))) {
                 map.put("name", map.get("name"));
             }
             List<Authority> list = authorityMapper.findAllBySome(map);
             pageInfo = new PageInfo<>(list);
-            redisService.set(key, pageInfo);
+            redisUtil.set(key, pageInfo);
         }
         log.info("根据条件查询文件数据成功");
         return Result.ok(pageInfo);

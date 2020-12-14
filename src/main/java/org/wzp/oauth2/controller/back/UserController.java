@@ -28,8 +28,8 @@ import org.wzp.oauth2.mapper.AuthorityMapper;
 import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.mapper.UserRoleMapper;
 import org.wzp.oauth2.service.ExcelService;
-import org.wzp.oauth2.service.RedisService;
 import org.wzp.oauth2.util.IpUtil;
+import org.wzp.oauth2.util.RedisUtil;
 import org.wzp.oauth2.util.Result;
 import org.wzp.oauth2.util.StringUtil;
 import org.wzp.oauth2.vo.IdVO;
@@ -62,9 +62,9 @@ public class UserController extends BaseConfig {
     @Resource
     private UserRoleMapper userRoleMapper;
     @Resource
-    private RedisService redisService;
-    @Resource
     private ExcelService excelService;
+    @Resource
+    private RedisUtil redisUtil;
 
 
     /**
@@ -247,14 +247,14 @@ public class UserController extends BaseConfig {
     })
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/findAll")
-    public Result<PageInfo> findAll(@RequestBody HashMap<String, Object> map) {
+    public Result<PageInfo<List<User>>> findAll(@RequestBody HashMap<String, Object> map) {
         getPageRequest(map);
         //判断key是否存在，存在则从redis取，不存在则查询数据库
         String key = getKey("userList", map);
-        boolean hasKey = redisService.hasKey(key);
+        boolean hasKey = redisUtil.hasKey(key);
         PageInfo pageInfo;
         if (hasKey) {
-            pageInfo = (PageInfo) redisService.get(key);
+            pageInfo = (PageInfo) redisUtil.get(key);
         } else {
             if (!StringUtil.isEmpty(map.get("name"))) {
                 map.put("name", map.get("name"));
@@ -264,7 +264,7 @@ public class UserController extends BaseConfig {
             }
             List<User> list = userMapper.findAllBySome(map);
             pageInfo = new PageInfo<>(list);
-            redisService.set(key, pageInfo);
+            redisUtil.set(key, pageInfo);
         }
         return Result.ok(pageInfo);
     }
@@ -295,7 +295,7 @@ public class UserController extends BaseConfig {
         }
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userMapper.updateByPrimaryKeySelective(user);
-        redisService.loginOut(user.getUsername());
+        removeToken(user.getUsername());
         return Result.ok();
     }
 
@@ -320,7 +320,7 @@ public class UserController extends BaseConfig {
         }
         user.setPassword(bCryptPasswordEncoder.encode(newPassword));
         userMapper.updateByPrimaryKeySelective(user);
-        redisService.loginOut(user.getUsername());
+        removeToken(user.getUsername());
         return Result.ok();
     }
 

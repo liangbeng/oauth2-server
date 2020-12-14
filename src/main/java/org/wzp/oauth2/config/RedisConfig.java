@@ -35,10 +35,12 @@ public class RedisConfig {
     @Bean
     public CacheManager cacheManager(RedisTemplate redisTemplate) {
         RedisCacheWriter redisCacheWriter = RedisCacheWriter.nonLockingRedisCacheWriter(redisTemplate.getConnectionFactory());
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(1))//缓存有效时间
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration
+                .defaultCacheConfig()
+                //缓存有效时间
+                .entryTtl(Duration.ofHours(1))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(redisTemplate.getValueSerializer()));
         return new RedisCacheManager(redisCacheWriter, redisCacheConfiguration);
-
     }
 
     /**
@@ -68,11 +70,14 @@ public class RedisConfig {
         //解决查询缓存转换异常的问题
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance ,ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.WRAPPER_ARRAY);
+        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.WRAPPER_ARRAY);
         jackson2JsonRedisSerializer.setObjectMapper(om);
         //配置序列化(解决乱码的问题)
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofDays(1L)) //设置默认缓存1天
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(redisSerializer))
+        RedisCacheConfiguration config = RedisCacheConfiguration
+                .defaultCacheConfig()
+                //设置默认缓存1天
+                .entryTtl(Duration.ofDays(1L))
+                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jackson2JsonRedisSerializer))
                 .disableCachingNullValues();
         Set<String> cacheNames = new HashSet<>();
@@ -82,9 +87,12 @@ public class RedisConfig {
         Map<String, RedisCacheConfiguration> configMap = new HashMap<>();
         configMap.put("oauth2", config);
 //        configMap.put("wzp", config.entryTtl(Duration.ofHours(1)));
-        RedisCacheManager cacheManager = RedisCacheManager.builder(factory)
+        RedisCacheManager cacheManager = RedisCacheManager
+                .builder(factory)
                 .cacheDefaults(config)
-                .initialCacheNames(cacheNames)// 注意这两句的调用顺序，一定要先调用该方法设置初始化的缓存名，再初始化相关的配置
+                // 注意这两句的调用顺序，一定要先调用该方法设置初始化的缓存名
+                .initialCacheNames(cacheNames)
+                // 再初始化相关的配置
                 .withInitialCacheConfigurations(configMap)
                 .build();
         return cacheManager;
