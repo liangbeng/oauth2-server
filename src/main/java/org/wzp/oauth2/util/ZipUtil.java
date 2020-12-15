@@ -55,7 +55,7 @@ public class ZipUtil {
         String fileName = System.currentTimeMillis() + FileUtil.getFileSuffix(filePath);
         String zipPath = CustomConfig.fileSave + File.separator + fileName;
         // zipPath 指压缩到哪儿的文件路径  filePath 指要进行压缩的文件路径
-        String exec = String.format(zipExeFile + " a " + zipPath + " " + filePath + "\\*" + " -pnanfengluojin");
+        String exec = String.format(zipExeFile + " a " + zipPath + " " + filePath + "\\*" + " -pkuye");
         Runtime runtime = Runtime.getRuntime();
         Process process = runtime.exec(exec);
         InputStream is = process.getInputStream();

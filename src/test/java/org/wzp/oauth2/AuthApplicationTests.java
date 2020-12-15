@@ -1,6 +1,11 @@
 package org.wzp.oauth2;
 
+import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.poi.util.IOUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -11,8 +16,17 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.wzp.oauth2.entity.User;
+import org.wzp.oauth2.mapper.UserMapper;
+import sun.nio.ch.IOUtil;
 
-import java.io.IOException;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.io.*;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
@@ -25,7 +39,8 @@ class AuthApplicationTests {
     @Autowired
     private RestHighLevelClient restHighLevelClient;
 
-    /**查询
+    /**
+     * 查询
      * SearchRequest 搜索请求
      * SearchSourceBuilder 条件构造
      * HighlightBuilder 构建高亮
@@ -55,5 +70,37 @@ class AuthApplicationTests {
     }
 
 
+    @Autowired
+    private UserMapper userMapper;
+
+    @Test
+    void selectPage() {
+        Page<User> page = new Page<>(1, 20);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("name","普通");
+        queryWrapper.select("id","name");
+        queryWrapper.orderByDesc("name");
+        queryWrapper.orderByAsc("id");
+        IPage<User> userIPage = userMapper.selectPage(page, queryWrapper);
+        System.out.println(userIPage);
+    }
+
+    @Test
+    public void selectMapsPage() {
+        IPage<Map<String, Object>> page=new Page<>(1,20);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("name","普通");
+        queryWrapper.like("name","南风");
+        queryWrapper.select("id","name");
+        IPage<Map<String, Object>> mapIPage = userMapper.selectMapsPage(page, queryWrapper);
+        System.out.println(mapIPage);
+    }
+
+    @Test
+    void zip(){
+        File file = ZipUtil.zip("G:\\wuliangye_game","G:\\wuliangye_game1",true);
+        String filePath = file.getPath();
+        System.out.println(filePath);
+    }
 
 }
