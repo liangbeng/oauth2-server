@@ -21,7 +21,6 @@ public class CustomConfig {
     public static String tokenUrl;
     public static String ipData;
     public static String defaultPassword;
-    public static String fileSavePath;
     public static String publicNetWork;
     public static String emailExchange;
     public static String routingKey;
@@ -88,14 +87,6 @@ public class CustomConfig {
 
     public void setDefaultPassword(String defaultPassword) {
         CustomConfig.defaultPassword = defaultPassword;
-    }
-
-    public String getFileSavePath() {
-        return fileSavePath;
-    }
-
-    public void setFileSavePath(String fileSavePath) {
-        CustomConfig.fileSavePath = fileSavePath;
     }
 
     public String getPublicNetWork() {

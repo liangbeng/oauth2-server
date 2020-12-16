@@ -1,5 +1,6 @@
 package org.wzp.oauth2.service.impl;
 
+import com.alibaba.excel.ExcelWriter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -12,7 +13,9 @@ import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.service.ExcelService;
 import org.wzp.oauth2.util.StringUtil;
 import org.wzp.oauth2.util.excel.ExcelData;
+import org.wzp.oauth2.util.excel.ExcelExportUtil;
 import org.wzp.oauth2.util.excel.ExcelUtils;
+import org.wzp.oauth2.vo.UserExcelVO;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -27,6 +30,10 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
 
     @Resource
     private UserMapper userMapper;
+
+    private String savePath = CustomConfig.fileSave;
+
+    private Integer excelRows = 50000;
 
 
     @Override
@@ -62,6 +69,61 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+        return true;
+    }
+
+
+    @Override
+    public boolean excelExport(List<User> mapList, String fileName) {
+        int count = 0;
+        int num = 0;
+        ExcelExportUtil handler = null;
+        ExcelWriter excelWriter = null;
+        try {
+            //创建handler对象--参数文件夹名
+            handler = new ExcelExportUtil(savePath);
+            excelWriter = handler.create(fileName, mapList.size(), UserExcelVO.class);
+            List<UserExcelVO> list = new ArrayList<>(1024);
+            //分多次导出 为了降低导出过程中的内存资源
+            //根据数据总数据量和每次拿的数据量计算出需要拿几次数据
+            int number = mapList.size() % excelRows > 0 ? (mapList.size() / excelRows) + 1 : (mapList.size() / excelRows);
+            /*//单sheet导出
+            for (int a = 0; a < number; a++) {
+                for (int i = 0; i < excelRows; i++) {
+                    if (num < mapList.size()) {
+                        list.add(new UserExcelVO(mapList.get(num).getUsername(), mapList.get(num).getPassword()));
+                        num++;
+                    } else {
+                        break;
+                    }
+                }
+                handler.write(excelWriter, list);
+                //必须clear,否则数据会重复
+                list.clear();
+            }*/
+            //多sheet导出
+            for (int a = 0; a < number; a++) {
+                for (int i = 0; i < excelRows; i++) {
+                    if (num < mapList.size()) {
+                        list.add(new UserExcelVO(mapList.get(num).getUsername(), mapList.get(num).getPassword()));
+                        num++;
+                    } else {
+                        break;
+                    }
+                }
+                //count 将控制插入哪一个sheet
+                count += list.size();
+                handler.write(excelWriter, list, count);
+                list.clear();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        } finally {
+            if (null != excelWriter) {
+                handler.finish(excelWriter);
+            }
         }
         return true;
     }
@@ -104,4 +166,6 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
             userMapper.insertSelective(user);
         }
     }
+
+
 }

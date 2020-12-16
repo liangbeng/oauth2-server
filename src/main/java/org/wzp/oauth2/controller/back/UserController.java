@@ -28,10 +28,7 @@ import org.wzp.oauth2.mapper.AuthorityMapper;
 import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.mapper.UserRoleMapper;
 import org.wzp.oauth2.service.ExcelService;
-import org.wzp.oauth2.util.IpUtil;
-import org.wzp.oauth2.util.RedisUtil;
-import org.wzp.oauth2.util.Result;
-import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.*;
 import org.wzp.oauth2.vo.IdVO;
 import org.wzp.oauth2.vo.LoginVO;
 import org.wzp.oauth2.vo.UpdatePasswordVO;
@@ -337,12 +334,19 @@ public class UserController extends BaseConfig {
             map1.put("username", map.get("username"));
         }
         List<User> list = userMapper.findAllBySome(map1);
-        boolean getExcelData = excelService.getUserExcelData(list);
+        //直接用客户端浏览器下载
+        /*boolean getExcelData = excelService.getUserExcelData(list);
         // excel相关属性设置
         if (!getExcelData) {
             return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
+        }*/
+        //保存到服务器上，返回url给前端，供前端下载
+        String fileName = "/excel/系统用户表" + DateUtil.sysTime() + ".xlsx";
+        boolean excelExport = excelService.excelExport(list, fileName);
+        if (!excelExport) {
+            return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
         }
-        return null;
+        return Result.ok(fileName);
     }
 
 

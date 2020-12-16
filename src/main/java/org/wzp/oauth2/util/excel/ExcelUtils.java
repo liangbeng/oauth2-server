@@ -27,7 +27,6 @@ public class ExcelUtils extends BaseConfig {
      */
     public static void exportExcel(HttpServletResponse response, String fileName, ExcelData data) throws Exception {
         // 告诉浏览器用什么软件可以打开此文件
-//        response.setHeader("content-Type", "application/json");
         response.setHeader("content-Type", "application/octet-stream");
         // 下载文件的默认名称
         response.setHeader("Content-Disposition", "attachment;filename=" + new String(fileName.getBytes("gb2312"), "ISO8859-1"));

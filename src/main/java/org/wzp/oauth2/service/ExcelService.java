@@ -21,6 +21,16 @@ public interface ExcelService {
 
 
     /**
+     * 将表数据导出为excel
+     *
+     * @param list     用户列表
+     * @param fileName excel表名
+     * @return 返回值 true false
+     */
+    boolean excelExport(List<User> list, String fileName);
+
+
+    /**
      * 将excel数据导入表中
      *
      * @param sheet     excel数据

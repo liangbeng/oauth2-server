@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.apache.poi.util.IOUtils;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
@@ -18,14 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.wzp.oauth2.entity.User;
 import org.wzp.oauth2.mapper.UserMapper;
-import sun.nio.ch.IOUtil;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import java.io.*;
-import java.security.SecureRandom;
-import java.util.Arrays;
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 

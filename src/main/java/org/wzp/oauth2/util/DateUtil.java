@@ -23,12 +23,13 @@ public class DateUtil {
 
 
     /**
-     * 使用LocalDateTime获取现在的时间
+     * 获取当前系统时间并格式化
      *
      * @return
      */
-    public static LocalDateTime nowTime() {
-        return LocalDateTime.now();
+    public static String formatSysTime() {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return simpleDateFormat.format(new Date(sysTime()));
     }
 
 
@@ -38,9 +39,19 @@ public class DateUtil {
      * @param timestamp
      * @return
      */
-    public static String formatTime(Long timestamp) {
+    public static String formatSysTime(Long timestamp) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return simpleDateFormat.format(new Date(timestamp));
+    }
+
+
+    /**
+     * 使用LocalDateTime获取现在的时间
+     *
+     * @return
+     */
+    public static LocalDateTime nowTime() {
+        return LocalDateTime.now();
     }
 
 
