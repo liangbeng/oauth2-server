@@ -34,7 +34,7 @@ public interface UserMapper extends BaseMapper<User> {
     List<User> findAllBySome(HashMap map);
 
     @Select("select count(u.id) from user u ")
-    Long findUserCount();
+    Integer findUserCount();
 
 
 }

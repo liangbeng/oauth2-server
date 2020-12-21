@@ -1,12 +1,5 @@
 package org.wzp.oauth2.controller.back;
 
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.write.metadata.WriteSheet;
-import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageInfo;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
@@ -33,15 +26,16 @@ import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.mapper.UserRoleMapper;
 import org.wzp.oauth2.service.ExcelService;
 import org.wzp.oauth2.util.*;
-import org.wzp.oauth2.vo.*;
+import org.wzp.oauth2.vo.IdVO;
+import org.wzp.oauth2.vo.LoginVO;
+import org.wzp.oauth2.vo.UpdatePasswordVO;
+import org.wzp.oauth2.vo.UserVO;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -350,25 +344,21 @@ public class UserController extends BaseConfig {
 
     @ApiOperation("使用easyExcel导出数据")
     @GetMapping("download")
-    public Result download() throws IOException {
+    public Result download() {
         //获取总数据量
-        /*HashMap<String, Object> map = new HashMap<>(5);
-        List<User> userList = userMapper.findAllBySome(map);
-        Integer count = userList.size();*/
-        Long count = userMapper.findUserCount();
-
-
+        Integer totalNum = userMapper.findUserCount();
         //保存到服务器上，返回url给前端，供前端下载
         String fileName = "/excel/系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelExport = excelService.excelExport(count, fileName);
+        boolean excelExport = excelService.excelExport(totalNum, fileName);
         if (!excelExport) {
             return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
         }
-
-
+//        new EasyExcelUtil().downloadExcel(response, CustomConfig.fileSave + fileName);
+        //直接通过客户端浏览器下载
+        /*String fileName = "系统用户表" + DateUtil.sysTime() + ".xlsx";
+        excelService.excelDownload(response, totalNum, fileName);*/
         return Result.ok();
     }
-
 
 
     @ApiOperation("excel导入")

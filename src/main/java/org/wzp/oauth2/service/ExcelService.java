@@ -3,6 +3,7 @@ package org.wzp.oauth2.service;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.wzp.oauth2.entity.User;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -23,11 +24,21 @@ public interface ExcelService {
     /**
      * 将表数据导出为excel
      *
-     * @param total     用户数量
+     * @param total    数量
      * @param fileName excel表名
      * @return 返回值 true false
      */
-    boolean excelExport(Long total, String fileName);
+    boolean excelExport(Integer total, String fileName);
+
+
+    /**
+     * 通过客户端浏览器直接下载
+     *
+     * @param response response
+     * @param totalNum 数据量
+     * @return 返回值 true false
+     */
+    void excelDownload(HttpServletResponse response, Integer totalNum, String fileName);
 
 
     /**

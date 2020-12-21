@@ -15,7 +15,6 @@ import org.wzp.oauth2.config.CustomConfig;
 import org.wzp.oauth2.entity.User;
 import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.service.ExcelService;
-import org.wzp.oauth2.util.DateUtil;
 import org.wzp.oauth2.util.StringUtil;
 import org.wzp.oauth2.util.excel.EasyExcelUtil;
 import org.wzp.oauth2.util.excel.ExcelData;
@@ -24,7 +23,6 @@ import org.wzp.oauth2.vo.UserExcelVO;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +45,7 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
     private Integer excelRows = 100000;
 
     //默认每个sheet存储的行数
-    private static final int defaultSheetNum = 500000;
+    private static final int defaultSheetNum = 1000000;
 
 
     @Override
@@ -89,18 +87,15 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
 
 
     @Override
-    public boolean excelExport(Long totalNum, String fileName) {
-        int count = 0;
-        EasyExcelUtil easyExcelUtil = null;
+    public boolean excelExport(Integer totalNum, String fileName) {
+        EasyExcelUtil easyExcelUtil = new EasyExcelUtil(savePath);
         ExcelWriter excelWriter = null;
         try {
-            //创建文件夹名
-            easyExcelUtil = new EasyExcelUtil(savePath);
             excelWriter = easyExcelUtil.create(fileName, totalNum, UserExcelVO.class);
             List<UserExcelVO> list = new ArrayList<>();
             //分多次导出 为了降低导出过程中的内存资源
             //根据数据总数据量和每次拿的数据量计算出需要拿几次数据
-            Long number = (totalNum % excelRows) > 0 ? (totalNum / excelRows) + 1 : (totalNum / excelRows);
+            Integer number = (totalNum % excelRows) > 0 ? (totalNum / excelRows) + 1 : (totalNum / excelRows);
             //判断是多sheet导出还是单sheet导出
             if (totalNum <= defaultSheetNum) {
                 //单sheet导出
@@ -115,6 +110,7 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
                 }
             } else {
                 //多sheet导出
+                int count = 0;
                 for (int i = 1; i <= number; i++) {
                     IPage<User> page = userServiceImpl.getUserByPage(i, excelRows);
                     page.getRecords().forEach(user -> {
@@ -138,26 +134,41 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
     }
 
 
-    public void excelDownload(HttpServletResponse response, Long totalNum) {
-        //直接通过浏览器下载到客户端
+    /**
+     * 直接通过浏览器下载到客户端
+     *
+     * @param response response
+     * @param totalNum 数据量
+     * @param filename
+     */
+    public void excelDownload(HttpServletResponse response, Integer totalNum, String filename) {
         try {
+            new EasyExcelUtil().getResponse(response, filename);
             OutputStream outputStream = response.getOutputStream();
-            //添加响应头信息
-            response.setHeader("Content-disposition", "attachment; filename=" + "系统用戶表" + DateUtil.sysTime() + ".xlsx");
-            //设置类型
-            response.setContentType("multipart/form-data");
-            response.setCharacterEncoding("utf-8");
             List<UserExcelVO> list = new ArrayList<>();
             long number = (totalNum % excelRows) > 0 ? (totalNum / excelRows) + 1 : (totalNum / excelRows);
-            //如果总数据量多于10万，分页导出
-            if (number > 1) {
+            //如果总数据量大于单sheet的存放数量，则多sheet导出
+            if (totalNum <= defaultSheetNum) {
+                IPage<User> page = userServiceImpl.getUserByPage(1, totalNum);
+                page.getRecords().forEach(user -> {
+                    list.add(new UserExcelVO(user.getId(), user.getUsername(), user.getPassword()));
+                });
+                EasyExcel.write(outputStream, UserExcelVO.class)
+                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                        .sheet("sheet").doWrite(list);
+                list.clear();
+            } else {
+                int count = 0;
                 ExcelWriter excelWriter = EasyExcel.write(outputStream).build();
                 for (int i = 1; i <= number; i++) {
                     IPage<User> page = userServiceImpl.getUserByPage(i, excelRows);
                     page.getRecords().forEach(user -> {
                         list.add(new UserExcelVO(user.getId(), user.getUsername(), user.getPassword()));
                     });
-                    WriteSheet writeSheet = EasyExcel.writerSheet(i, "系统用戶表" + (i))
+                    //判断写到哪一个sheet中
+                    count += list.size();
+                    int sheetNumber = count / (defaultSheetNum) + 1;
+                    WriteSheet writeSheet = EasyExcel.writerSheet(sheetNumber, "sheet" + (sheetNumber))
                             .head(UserExcelVO.class)
                             .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).build();
                     excelWriter.write(list, writeSheet);
@@ -166,18 +177,10 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
                 }
                 //刷新流
                 excelWriter.finish();
-            } else {
-                IPage<User> page = userServiceImpl.getUserByPage(1, excelRows);
-                page.getRecords().forEach(user -> {
-                    list.add(new UserExcelVO(user.getId(), user.getUsername(), user.getPassword()));
-                });
-                EasyExcel.write(outputStream, UserExcelVO.class)
-                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
-                        .sheet("系统用戶表").doWrite(list);
             }
             outputStream.flush();
-            response.getOutputStream().close();
-        } catch (IOException e) {
+            outputStream.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

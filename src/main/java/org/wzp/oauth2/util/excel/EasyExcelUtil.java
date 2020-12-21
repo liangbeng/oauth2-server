@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class EasyExcelUtil {
     private String excelSavePath;
 
     //默认每个sheet存储的行数
-    private static final int defaultSheetNum = 500000;
+    private static final int defaultSheetNum = 1000000;
 
 
     /**
@@ -85,9 +86,9 @@ public class EasyExcelUtil {
      * @return
      * @throws Exception
      */
-    public ExcelWriter create(String excelName, Long totalNum, Class clazz) {
+    public ExcelWriter create(String excelName, Integer totalNum, Class clazz) {
         ExcelWriter excelWriter = EasyExcel.write(route(excelName), clazz.asSubclass(clazz)).build();
-        Long sheetNumber = (totalNum % defaultSheetNum) > 0 ? (totalNum / defaultSheetNum) + 1 : (totalNum / defaultSheetNum);
+        Integer sheetNumber = (totalNum % defaultSheetNum) > 0 ? (totalNum / defaultSheetNum) + 1 : (totalNum / defaultSheetNum);
         createSheets(sheetNumber);
         return excelWriter;
     }
@@ -141,20 +142,29 @@ public class EasyExcelUtil {
     }
 
 
+    public void getResponse(HttpServletResponse response, String filename) throws UnsupportedEncodingException {
+        // 这里URLEncoder.encode可以防止中文乱码
+        String fileName = URLEncoder.encode(filename, "UTF-8");
+        //添加响应头信息
+        response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+        //设置类型
+//        response.setContentType("application/vnd.ms-excel");
+        response.setContentType("multipart/form-data");
+        response.setCharacterEncoding("utf-8");
+    }
+
+
     /**
      * 将excel生成到服务器后通过url下载
      *
      * @param response
      */
-    public void downloadExcel(HttpServletResponse response) {
+    public void downloadExcel(HttpServletResponse response, String filename) {
         try {
             //获取服务器文件
-            File file = new File("G:\\oauth-server\\excel\\系统用户表1608172347120.xlsx");
+            File file = new File(filename);
             InputStream ins = new FileInputStream(file);
-            //设置文件ContentType类型，这样设置，会自动判断下载文件类型
-            response.setContentType("multipart/form-data");
-            //设置文件头：最后一个参数是设置下载文件名
-            response.setHeader("Content-Disposition", "attachment;filename=" + file.getName());
+            getResponse(response, file.getName());
             OutputStream os = response.getOutputStream();
             byte[] b = new byte[1024];
             int len;
