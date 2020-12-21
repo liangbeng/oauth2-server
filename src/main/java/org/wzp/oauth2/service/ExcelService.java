@@ -23,11 +23,11 @@ public interface ExcelService {
     /**
      * 将表数据导出为excel
      *
-     * @param list     用户列表
+     * @param total     用户数量
      * @param fileName excel表名
      * @return 返回值 true false
      */
-    boolean excelExport(List<User> list, String fileName);
+    boolean excelExport(Long total, String fileName);
 
 
     /**

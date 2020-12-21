@@ -1,6 +1,7 @@
 package org.wzp.oauth2;
 
 import cn.hutool.core.util.ZipUtil;
+import com.alibaba.excel.ExcelWriter;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -17,9 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.wzp.oauth2.entity.User;
 import org.wzp.oauth2.mapper.UserMapper;
+import org.wzp.oauth2.util.excel.EasyExcelUtil;
+import org.wzp.oauth2.vo.UserExcelVO;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 

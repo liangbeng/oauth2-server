@@ -3,8 +3,10 @@ package org.wzp.oauth2.util.excel;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
+import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +14,8 @@ import java.util.List;
  * @Author: zp.wei
  * @DATE: 2020/12/16 13:36
  */
-public class ExcelExportUtil {
+@Slf4j
+public class EasyExcelUtil {
 
     //excel的sheet集合
     private List<WriteSheet> sheets;
@@ -21,13 +24,13 @@ public class ExcelExportUtil {
     private String excelSavePath;
 
     //默认每个sheet存储的行数
-    private static final int DEFAULT_PER_SHEET_NUM = 500000;
+    private static final int defaultSheetNum = 500000;
 
 
     /**
-     * 对象创建，生成excel时，文件默认存放的文件夹"G:/excel"
+     * 对象创建，生成excel时，文件默认存放的文件夹"G:/oauth-server/excel"
      */
-    public ExcelExportUtil() {
+    public EasyExcelUtil() {
     }
 
 
@@ -36,7 +39,7 @@ public class ExcelExportUtil {
      *
      * @param folderName
      */
-    public ExcelExportUtil(String folderName) {
+    public EasyExcelUtil(String folderName) {
         excelSavePath = folderName;
     }
 
@@ -75,16 +78,16 @@ public class ExcelExportUtil {
 
     /**
      * 创建excel和sheet
-     * 根据数据量计算需要创建几个sheet，默认每个sheet放5000000数据
+     * 根据数据量计算需要创建几个sheet，默认每个sheet放500000数据
      *
      * @param excelName
      * @param clazz
      * @return
      * @throws Exception
      */
-    public ExcelWriter create(String excelName, Integer numSheet, Class clazz) {
+    public ExcelWriter create(String excelName, Long totalNum, Class clazz) {
         ExcelWriter excelWriter = EasyExcel.write(route(excelName), clazz.asSubclass(clazz)).build();
-        Integer sheetNumber = (numSheet % DEFAULT_PER_SHEET_NUM) > 0 ? (numSheet / DEFAULT_PER_SHEET_NUM) + 1 : (numSheet / DEFAULT_PER_SHEET_NUM);
+        Long sheetNumber = (totalNum % defaultSheetNum) > 0 ? (totalNum / defaultSheetNum) + 1 : (totalNum / defaultSheetNum);
         createSheets(sheetNumber);
         return excelWriter;
     }
@@ -109,7 +112,7 @@ public class ExcelExportUtil {
      * @param resize      动态调整大小
      */
     public void write(ExcelWriter excelWriter, List list, int resize) {
-        int index = resize / (DEFAULT_PER_SHEET_NUM + 1);
+        int index = resize / (defaultSheetNum + 1);
         excelWriter.write(list, sheets.get(index));
     }
 
@@ -129,12 +132,42 @@ public class ExcelExportUtil {
      *
      * @param num sheet的数量
      */
-    private void createSheets(int num) {
+    private void createSheets(long num) {
         sheets = new ArrayList<>();
         for (int i = 1; i <= num; i++) {
             WriteSheet sheet = EasyExcel.writerSheet(i, "sheet" + i).build();
             sheets.add(sheet);
         }
     }
+
+
+    /**
+     * 将excel生成到服务器后通过url下载
+     *
+     * @param response
+     */
+    public void downloadExcel(HttpServletResponse response) {
+        try {
+            //获取服务器文件
+            File file = new File("G:\\oauth-server\\excel\\系统用户表1608172347120.xlsx");
+            InputStream ins = new FileInputStream(file);
+            //设置文件ContentType类型，这样设置，会自动判断下载文件类型
+            response.setContentType("multipart/form-data");
+            //设置文件头：最后一个参数是设置下载文件名
+            response.setHeader("Content-Disposition", "attachment;filename=" + file.getName());
+            OutputStream os = response.getOutputStream();
+            byte[] b = new byte[1024];
+            int len;
+            while ((len = ins.read(b)) > 0) {
+                os.write(b, 0, len);
+            }
+            os.flush();
+            os.close();
+            ins.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
 
 }

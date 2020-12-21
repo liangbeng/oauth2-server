@@ -62,6 +62,6 @@ knife4j:
 custom-config:
   tokenUrl: http://127.0.0.1:8080
   zipExe: E:\7-Zip\7z.exe
-  fileSave: G:\oauth-server\fileList
+  fileSave: G:\oauth-server
   emailExchange: emailExchange
   routingKey: oauth

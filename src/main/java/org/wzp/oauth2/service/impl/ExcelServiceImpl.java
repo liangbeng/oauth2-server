@@ -1,6 +1,10 @@
 package org.wzp.oauth2.service.impl;
 
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -11,13 +15,17 @@ import org.wzp.oauth2.config.CustomConfig;
 import org.wzp.oauth2.entity.User;
 import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.service.ExcelService;
+import org.wzp.oauth2.util.DateUtil;
 import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.excel.EasyExcelUtil;
 import org.wzp.oauth2.util.excel.ExcelData;
-import org.wzp.oauth2.util.excel.ExcelExportUtil;
 import org.wzp.oauth2.util.excel.ExcelUtils;
 import org.wzp.oauth2.vo.UserExcelVO;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +38,16 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
 
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private UserServiceImpl userServiceImpl;
 
     private String savePath = CustomConfig.fileSave;
 
-    private Integer excelRows = 50000;
+    //默认每次从数据库取十万的数据
+    private Integer excelRows = 100000;
+
+    //默认每个sheet存储的行数
+    private static final int defaultSheetNum = 500000;
 
 
     @Override
@@ -75,57 +89,97 @@ public class ExcelServiceImpl extends BaseConfig implements ExcelService {
 
 
     @Override
-    public boolean excelExport(List<User> mapList, String fileName) {
+    public boolean excelExport(Long totalNum, String fileName) {
         int count = 0;
-        int num = 0;
-        ExcelExportUtil handler = null;
+        EasyExcelUtil easyExcelUtil = null;
         ExcelWriter excelWriter = null;
         try {
-            //创建handler对象--参数文件夹名
-            handler = new ExcelExportUtil(savePath);
-            excelWriter = handler.create(fileName, mapList.size(), UserExcelVO.class);
-            List<UserExcelVO> list = new ArrayList<>(1024);
+            //创建文件夹名
+            easyExcelUtil = new EasyExcelUtil(savePath);
+            excelWriter = easyExcelUtil.create(fileName, totalNum, UserExcelVO.class);
+            List<UserExcelVO> list = new ArrayList<>();
             //分多次导出 为了降低导出过程中的内存资源
             //根据数据总数据量和每次拿的数据量计算出需要拿几次数据
-            int number = mapList.size() % excelRows > 0 ? (mapList.size() / excelRows) + 1 : (mapList.size() / excelRows);
-            /*//单sheet导出
-            for (int a = 0; a < number; a++) {
-                for (int i = 0; i < excelRows; i++) {
-                    if (num < mapList.size()) {
-                        list.add(new UserExcelVO(mapList.get(num).getUsername(), mapList.get(num).getPassword()));
-                        num++;
-                    } else {
-                        break;
-                    }
+            Long number = (totalNum % excelRows) > 0 ? (totalNum / excelRows) + 1 : (totalNum / excelRows);
+            //判断是多sheet导出还是单sheet导出
+            if (totalNum <= defaultSheetNum) {
+                //单sheet导出
+                for (int i = 1; i <= number; i++) {
+                    IPage<User> page = userServiceImpl.getUserByPage(i, excelRows);
+                    page.getRecords().forEach(user -> {
+                        list.add(new UserExcelVO(user.getId(), user.getUsername(), user.getPassword()));
+                    });
+                    easyExcelUtil.write(excelWriter, list);
+                    //必须clear,否则数据会重复
+                    list.clear();
                 }
-                handler.write(excelWriter, list);
-                //必须clear,否则数据会重复
-                list.clear();
-            }*/
-            //多sheet导出
-            for (int a = 0; a < number; a++) {
-                for (int i = 0; i < excelRows; i++) {
-                    if (num < mapList.size()) {
-                        list.add(new UserExcelVO(mapList.get(num).getUsername(), mapList.get(num).getPassword()));
-                        num++;
-                    } else {
-                        break;
-                    }
+            } else {
+                //多sheet导出
+                for (int i = 1; i <= number; i++) {
+                    IPage<User> page = userServiceImpl.getUserByPage(i, excelRows);
+                    page.getRecords().forEach(user -> {
+                        list.add(new UserExcelVO(user.getId(), user.getUsername(), user.getPassword()));
+                    });
+                    //count 将控制插入哪一个sheet
+                    count += list.size();
+                    easyExcelUtil.write(excelWriter, list, count);
+                    list.clear();
                 }
-                //count 将控制插入哪一个sheet
-                count += list.size();
-                handler.write(excelWriter, list, count);
-                list.clear();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
         } finally {
             if (null != excelWriter) {
-                handler.finish(excelWriter);
+                easyExcelUtil.finish(excelWriter);
             }
         }
         return true;
+    }
+
+
+    public void excelDownload(HttpServletResponse response, Long totalNum) {
+        //直接通过浏览器下载到客户端
+        try {
+            OutputStream outputStream = response.getOutputStream();
+            //添加响应头信息
+            response.setHeader("Content-disposition", "attachment; filename=" + "系统用戶表" + DateUtil.sysTime() + ".xlsx");
+            //设置类型
+            response.setContentType("multipart/form-data");
+            response.setCharacterEncoding("utf-8");
+            List<UserExcelVO> list = new ArrayList<>();
+            long number = (totalNum % excelRows) > 0 ? (totalNum / excelRows) + 1 : (totalNum / excelRows);
+            //如果总数据量多于10万，分页导出
+            if (number > 1) {
+                ExcelWriter excelWriter = EasyExcel.write(outputStream).build();
+                for (int i = 1; i <= number; i++) {
+                    IPage<User> page = userServiceImpl.getUserByPage(i, excelRows);
+                    page.getRecords().forEach(user -> {
+                        list.add(new UserExcelVO(user.getId(), user.getUsername(), user.getPassword()));
+                    });
+                    WriteSheet writeSheet = EasyExcel.writerSheet(i, "系统用戶表" + (i))
+                            .head(UserExcelVO.class)
+                            .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy()).build();
+                    excelWriter.write(list, writeSheet);
+                    //清空list，避免数据重复
+                    list.clear();
+                }
+                //刷新流
+                excelWriter.finish();
+            } else {
+                IPage<User> page = userServiceImpl.getUserByPage(1, excelRows);
+                page.getRecords().forEach(user -> {
+                    list.add(new UserExcelVO(user.getId(), user.getUsername(), user.getPassword()));
+                });
+                EasyExcel.write(outputStream, UserExcelVO.class)
+                        .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                        .sheet("系统用戶表").doWrite(list);
+            }
+            outputStream.flush();
+            response.getOutputStream().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

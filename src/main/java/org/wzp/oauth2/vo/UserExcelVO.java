@@ -19,6 +19,10 @@ import lombok.NoArgsConstructor;
 @HeadRowHeight(20)
 public class UserExcelVO {
 
+    @ExcelProperty("id")
+    @ColumnWidth(5)
+    private Long id;
+
     @ExcelProperty("账号")
     @ColumnWidth(20)
     private String username;

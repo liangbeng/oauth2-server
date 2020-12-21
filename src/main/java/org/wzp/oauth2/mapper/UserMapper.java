@@ -1,6 +1,7 @@
 package org.wzp.oauth2.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.wzp.oauth2.entity.User;
@@ -31,6 +32,9 @@ public interface UserMapper extends BaseMapper<User> {
     int updateByPrimaryKey(User user);
 
     List<User> findAllBySome(HashMap map);
+
+    @Select("select count(u.id) from user u ")
+    Long findUserCount();
 
 
 }

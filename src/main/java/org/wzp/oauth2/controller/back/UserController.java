@@ -1,5 +1,12 @@
 package org.wzp.oauth2.controller.back;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.pagehelper.PageInfo;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
@@ -13,10 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.wzp.oauth2.config.BaseConfig;
 import org.wzp.oauth2.config.CustomConfig;
@@ -29,15 +33,15 @@ import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.mapper.UserRoleMapper;
 import org.wzp.oauth2.service.ExcelService;
 import org.wzp.oauth2.util.*;
-import org.wzp.oauth2.vo.IdVO;
-import org.wzp.oauth2.vo.LoginVO;
-import org.wzp.oauth2.vo.UpdatePasswordVO;
-import org.wzp.oauth2.vo.UserVO;
+import org.wzp.oauth2.vo.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -335,19 +339,36 @@ public class UserController extends BaseConfig {
         }
         List<User> list = userMapper.findAllBySome(map1);
         //直接用客户端浏览器下载
-        /*boolean getExcelData = excelService.getUserExcelData(list);
+        boolean getExcelData = excelService.getUserExcelData(list);
         // excel相关属性设置
         if (!getExcelData) {
             return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
-        }*/
+        }
+        return Result.ok();
+    }
+
+
+    @ApiOperation("使用easyExcel导出数据")
+    @GetMapping("download")
+    public Result download() throws IOException {
+        //获取总数据量
+        /*HashMap<String, Object> map = new HashMap<>(5);
+        List<User> userList = userMapper.findAllBySome(map);
+        Integer count = userList.size();*/
+        Long count = userMapper.findUserCount();
+
+
         //保存到服务器上，返回url给前端，供前端下载
         String fileName = "/excel/系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelExport = excelService.excelExport(list, fileName);
+        boolean excelExport = excelService.excelExport(count, fileName);
         if (!excelExport) {
             return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
         }
-        return Result.ok(fileName);
+
+
+        return Result.ok();
     }
+
 
 
     @ApiOperation("excel导入")
