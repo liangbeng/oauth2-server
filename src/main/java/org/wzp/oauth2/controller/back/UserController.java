@@ -26,6 +26,7 @@ import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.mapper.UserRoleMapper;
 import org.wzp.oauth2.service.ExcelService;
 import org.wzp.oauth2.util.*;
+import org.wzp.oauth2.util.excel.EasyExcelUtil;
 import org.wzp.oauth2.vo.IdVO;
 import org.wzp.oauth2.vo.LoginVO;
 import org.wzp.oauth2.vo.UpdatePasswordVO;
@@ -334,11 +335,10 @@ public class UserController extends BaseConfig {
         List<User> list = userMapper.findAllBySome(map1);
         //直接用客户端浏览器下载
         boolean getExcelData = excelService.getUserExcelData(list);
-        // excel相关属性设置
         if (!getExcelData) {
             return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
         }
-        return Result.ok();
+        return null;
     }
 
 
@@ -349,15 +349,19 @@ public class UserController extends BaseConfig {
         Integer totalNum = userMapper.findUserCount();
         //保存到服务器上，返回url给前端，供前端下载
         String fileName = "/excel/系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelExport = excelService.excelExport(totalNum, fileName);
-        if (!excelExport) {
-            return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
-        }
+        boolean excelDownload = excelService.excelExport(totalNum, fileName);
 //        new EasyExcelUtil().downloadExcel(response, CustomConfig.fileSave + fileName);
+
         //直接通过客户端浏览器下载
         /*String fileName = "系统用户表" + DateUtil.sysTime() + ".xlsx";
-        excelService.excelDownload(response, totalNum, fileName);*/
-        return Result.ok();
+        boolean excelDownload = excelService.excelDownload(response, totalNum, fileName);*/
+
+        if (!excelDownload) {
+            return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
+        }
+        //如果这里有返回会导致 Cannot call sendError() after the response has been committed 错误
+        // 原因在于response输出流已关闭，导致执行第二个输出时出现response被提交之后不能发送错误请求，故设置为 return null
+        return null;
     }
 
 

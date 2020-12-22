@@ -22,9 +22,9 @@ public class EasyExcelUtil {
     private List<WriteSheet> sheets;
 
     //excel存放的文件夹
-    private String excelSavePath;
+    private String excelSavePath = "G:/oauth-server";
 
-    //默认每个sheet存储的行数
+    //默认每个sheet存储一百万的数据
     private static final int defaultSheetNum = 1000000;
 
 

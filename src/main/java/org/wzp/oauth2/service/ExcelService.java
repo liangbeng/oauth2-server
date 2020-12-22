@@ -36,9 +36,10 @@ public interface ExcelService {
      *
      * @param response response
      * @param totalNum 数据量
+     * @param fileName 文件名
      * @return 返回值 true false
      */
-    void excelDownload(HttpServletResponse response, Integer totalNum, String fileName);
+    boolean excelDownload(HttpServletResponse response, Integer totalNum, String fileName);
 
 
     /**
