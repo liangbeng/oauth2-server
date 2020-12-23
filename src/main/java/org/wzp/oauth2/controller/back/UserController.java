@@ -1,5 +1,6 @@
 package org.wzp.oauth2.controller.back;
 
+import com.alibaba.excel.EasyExcel;
 import com.github.pagehelper.PageInfo;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
@@ -24,7 +25,9 @@ import org.wzp.oauth2.enumeration.ResultCodeEnum;
 import org.wzp.oauth2.mapper.AuthorityMapper;
 import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.mapper.UserRoleMapper;
-import org.wzp.oauth2.service.ExcelService;
+import org.wzp.oauth2.service.UserEasyExcelWriteService;
+import org.wzp.oauth2.service.UserExcelService;
+import org.wzp.oauth2.service.impl.UserEasyExcelRead;
 import org.wzp.oauth2.util.*;
 import org.wzp.oauth2.util.excel.EasyExcelUtil;
 import org.wzp.oauth2.vo.IdVO;
@@ -33,7 +36,6 @@ import org.wzp.oauth2.vo.UpdatePasswordVO;
 import org.wzp.oauth2.vo.UserVO;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -58,7 +60,9 @@ public class UserController extends BaseConfig {
     @Resource
     private UserRoleMapper userRoleMapper;
     @Resource
-    private ExcelService excelService;
+    private UserExcelService userExcelService;
+    @Resource
+    private UserEasyExcelWriteService userEasyExcelWriteService;
     @Resource
     private RedisUtil redisUtil;
 
@@ -321,7 +325,9 @@ public class UserController extends BaseConfig {
     }
 
 
-    @ApiOperation("excel导出")
+    //------------------------------------- poi --------------------------------------
+
+    @ApiOperation("使用poi导出到excel")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/excelDownloads")
     public Result excelDownloads(@RequestBody HashMap<String, Object> map) {
@@ -334,7 +340,7 @@ public class UserController extends BaseConfig {
         }
         List<User> list = userMapper.findAllBySome(map1);
         //直接用客户端浏览器下载
-        boolean getExcelData = excelService.getUserExcelData(list);
+        boolean getExcelData = userExcelService.getUserExcelData(list);
         if (!getExcelData) {
             return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
         }
@@ -342,30 +348,7 @@ public class UserController extends BaseConfig {
     }
 
 
-    @ApiOperation("使用easyExcel导出数据")
-    @GetMapping("download")
-    public Result download() {
-        //获取总数据量
-        Integer totalNum = userMapper.findUserCount();
-        //保存到服务器上，返回url给前端，供前端下载
-        String fileName = "/excel/系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelDownload = excelService.excelExport(totalNum, fileName);
-//        new EasyExcelUtil().downloadExcel(response, CustomConfig.fileSave + fileName);
-
-        //直接通过客户端浏览器下载
-        /*String fileName = "系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelDownload = excelService.excelDownload(response, totalNum, fileName);*/
-
-        if (!excelDownload) {
-            return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
-        }
-        //如果这里有返回会导致 Cannot call sendError() after the response has been committed 错误
-        // 原因在于response输出流已关闭，导致执行第二个输出时出现response被提交之后不能发送错误请求，故设置为 return null
-        return null;
-    }
-
-
-    @ApiOperation("excel导入")
+    @ApiOperation("使用poi导入到数据库")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/importExcel")
     public Result importExcel(MultipartFile file) throws IOException {
@@ -377,11 +360,49 @@ public class UserController extends BaseConfig {
             //获取一共多少行
             int rowNumber = sheet.getLastRowNum();
             //遍历sheet，保存用户
-            excelService.setUserExcelData(sheet, rowNumber);
+            userExcelService.setUserExcelData(sheet, rowNumber);
         } catch (Exception e) {
             throw e;
         }
         return Result.ok(ResultCodeEnum.EXCEL_SUCCESS_IMPORT);
+    }
+
+    //------------------------------------- easyExcel --------------------------------------
+
+    @ApiOperation("使用easyExcel导出到excel")
+    @GetMapping("easyExcelDownload")
+    public Result easyExcelDownload() {
+        //获取总数据量
+        Integer totalNum = userMapper.findUserCount();
+        //保存到服务器上，返回url给前端，供前端下载
+        String fileName = "/excel/系统用户表" + DateUtil.sysTime() + ".xlsx";
+        boolean excelDownload = userEasyExcelWriteService.excelExport(totalNum, fileName);
+//        new EasyExcelUtil().downloadExcel(response, CustomConfig.fileSave + fileName);
+
+        //直接通过客户端浏览器下载
+        /*String fileName = "系统用户表" + DateUtil.sysTime() + ".xlsx";
+        boolean excelDownload = userEasyExcelWriteService.excelDownload(response, totalNum, fileName);*/
+
+        if (!excelDownload) {
+            return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
+        }
+        //如果这里有返回会导致 Cannot call sendError() after the response has been committed 错误
+        // 原因在于response输出流已关闭，导致执行第二个输出时出现response被提交之后不能发送错误请求，故设置为 return null
+        return null;
+    }
+
+
+    @ApiOperation("使用easyExcel导入到数据库")
+    @ApiImplicitParam(name = "filename", value = "文件名", dataType = "string", paramType = "query", example = "G:/oauth-server/excel/1608702092807.xlsx")
+    @GetMapping("/easyExcelImport")
+    public Result easyExcelImport() {
+        String filename = request.getParameter("filename");
+        // 这里 需要指定用哪个class去读，然后读取第一个sheet 文件流会自动关闭
+        //读取单个sheet
+//        EasyExcel.read(filename, User.class, new UserEasyExcelRead()).sheet().doRead();
+        //读取多个sheet
+        EasyExcel.read(filename, User.class, new UserEasyExcelRead()).doReadAll();
+        return Result.ok();
     }
 
 
