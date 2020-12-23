@@ -1,7 +1,6 @@
 package org.wzp.oauth2;
 
 import cn.hutool.core.util.ZipUtil;
-import com.alibaba.excel.ExcelWriter;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -18,14 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.wzp.oauth2.entity.User;
 import org.wzp.oauth2.mapper.UserMapper;
-import org.wzp.oauth2.util.excel.EasyExcelUtil;
-import org.wzp.oauth2.vo.UserExcelVO;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -77,8 +71,8 @@ class AuthApplicationTests {
     void selectPage() {
         Page<User> page = new Page<>(1, 20);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("name","普通");
-        queryWrapper.select("id","name");
+        queryWrapper.like("name", "普通");
+        queryWrapper.select("id", "name");
         queryWrapper.orderByDesc("name");
         queryWrapper.orderByAsc("id");
         IPage<User> userIPage = userMapper.selectPage(page, queryWrapper);
@@ -87,18 +81,18 @@ class AuthApplicationTests {
 
     @Test
     public void selectMapsPage() {
-        IPage<Map<String, Object>> page=new Page<>(1,20);
+        IPage<Map<String, Object>> page = new Page<>(1, 20);
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.like("name","普通");
-        queryWrapper.like("name","南风");
-        queryWrapper.select("id","name");
+        queryWrapper.like("name", "普通");
+        queryWrapper.like("name", "南风");
+        queryWrapper.select("id", "name");
         IPage<Map<String, Object>> mapIPage = userMapper.selectMapsPage(page, queryWrapper);
         System.out.println(mapIPage);
     }
 
     @Test
-    void zip(){
-        File file = ZipUtil.zip("G:\\wuliangye_game","G:\\wuliangye_game1",true);
+    void zip() {
+        File file = ZipUtil.zip("G:\\wuliangye_game", "G:\\wuliangye_game1", true);
         String filePath = file.getPath();
         System.out.println(filePath);
     }
