@@ -60,7 +60,7 @@ knife4j:
   production: false # 是否开启生产环境屏蔽
 
 custom-config:
-  tokenUrl: http://127.0.0.1:8080
+  tokenUrl: http://127.0.0.1:10000
   zipExe: E:\7-Zip\7z.exe
   fileSave: G:\oauth-server
   emailExchange: emailExchange
