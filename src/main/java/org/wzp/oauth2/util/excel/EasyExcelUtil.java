@@ -159,7 +159,7 @@ public class EasyExcelUtil {
      *
      * @param response
      */
-    public void downloadExcel(HttpServletResponse response, String filename) {
+    public boolean downloadExcel(HttpServletResponse response, String filename) {
         try {
             //获取服务器文件
             File file = new File(filename);
@@ -176,7 +176,9 @@ public class EasyExcelUtil {
             ins.close();
         } catch (IOException ioe) {
             ioe.printStackTrace();
+            return false;
         }
+        return true;
     }
 
 

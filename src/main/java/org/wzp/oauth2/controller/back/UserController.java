@@ -1,6 +1,8 @@
 package org.wzp.oauth2.controller.back;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
@@ -342,7 +344,7 @@ public class UserController extends BaseConfig {
         //直接用客户端浏览器下载
         boolean getExcelData = userExcelService.getUserExcelData(list);
         if (!getExcelData) {
-            return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
+            return Result.error(ResultCodeEnum.EXCEL_DOWNLAND_FAIL);
         }
         return null;
     }
@@ -364,7 +366,7 @@ public class UserController extends BaseConfig {
         } catch (Exception e) {
             throw e;
         }
-        return Result.ok(ResultCodeEnum.EXCEL_SUCCESS_IMPORT);
+        return Result.ok(ResultCodeEnum.EXCEL_IMPORT_SUCCESS);
     }
 
     //------------------------------------- easyExcel --------------------------------------
@@ -376,16 +378,19 @@ public class UserController extends BaseConfig {
         Integer totalNum = userMapper.findUserCount();
         //保存到服务器上，返回url给前端，供前端下载
         String fileName = "/excel/系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelDownload = userEasyExcelWriteService.excelExport(totalNum, fileName);
-//        new EasyExcelUtil().downloadExcel(response, CustomConfig.fileSave + fileName);
+        boolean excelExport = userEasyExcelWriteService.excelExport(totalNum, fileName);
+        if (!excelExport) {
+            return Result.error(ResultCodeEnum.EXCEL_EXPORT_FAIL);
+        }
+//        boolean excelDownload =  new EasyExcelUtil().downloadExcel(response, CustomConfig.fileSave + fileName);
 
         //直接通过客户端浏览器下载
         /*String fileName = "系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelDownload = userEasyExcelWriteService.excelDownload(response, totalNum, fileName);*/
+        boolean excelDownload = userEasyExcelWriteService.excelDownload(response, totalNum, fileName);
 
         if (!excelDownload) {
-            return Result.error(ResultCodeEnum.ERROR_EXCEL_DOWNLAND);
-        }
+            return Result.error(ResultCodeEnum.EXCEL_DOWNLAND_FAIL);
+        }*/
         //如果这里有返回会导致 Cannot call sendError() after the response has been committed 错误
         // 原因在于response输出流已关闭，导致执行第二个输出时出现response被提交之后不能发送错误请求，故设置为 return null
         return null;
@@ -402,7 +407,7 @@ public class UserController extends BaseConfig {
 //        EasyExcel.read(filename, User.class, new UserEasyExcelRead()).sheet().doRead();
         //读取多个sheet
         EasyExcel.read(filename, User.class, new UserEasyExcelRead()).doReadAll();
-        return Result.ok();
+        return Result.ok(ResultCodeEnum.EXCEL_IMPORT_SUCCESS);
     }
 
 
