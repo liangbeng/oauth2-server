@@ -15,7 +15,7 @@ public class DateUtil {
     /**
      * 获取当前系统时间
      *
-     * @return
+     * @return 毫秒值的时间戳
      */
     public static long sysTime() {
         return System.currentTimeMillis();
@@ -25,7 +25,7 @@ public class DateUtil {
     /**
      * 获取当前系统时间并格式化
      *
-     * @return
+     * @return 格式化后的时间 yyyy-MM-dd HH:mm:ss
      */
     public static String formatSysTime() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -36,8 +36,8 @@ public class DateUtil {
     /**
      * 时间戳按指定格式转化为日期
      *
-     * @param timestamp
-     * @return
+     * @param timestamp 时间戳
+     * @return 格式化后的时间 yyyy-MM-dd HH:mm:ss
      */
     public static String formatSysTime(Long timestamp) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -48,7 +48,7 @@ public class DateUtil {
     /**
      * 使用LocalDateTime获取现在的时间
      *
-     * @return
+     * @return 时间
      */
     public static LocalDateTime nowTime() {
         return LocalDateTime.now();
@@ -58,7 +58,7 @@ public class DateUtil {
     /**
      * 使用LocalDateTime获取现在的时间并格式化
      *
-     * @return
+     * @return 格式化后的时间 yyyy-MM-dd HH:mm:ss
      */
     public static String formatLocalDateTime() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -67,10 +67,21 @@ public class DateUtil {
 
 
     /**
+     * 将LocalDateTime格式的时间格式化
+     * @param localDateTime 时间
+     * @return 格式化后的时间 yyyy-MM-dd HH:mm:ss
+     */
+    public static String formatLocalDateTime(LocalDateTime localDateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return localDateTime.format(formatter);
+    }
+
+
+    /**
      * LocalDateTime转为时间戳
      *
-     * @param localDateTime
-     * @return
+     * @param localDateTime 时间
+     * @return 毫秒值的时间戳
      */
     public static Long localDateTimeToTimestamp(LocalDateTime localDateTime) {
         return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
@@ -80,22 +91,11 @@ public class DateUtil {
     /**
      * 时间戳转LocalDateTime
      *
-     * @param timestamp
+     * @param timestamp 时间戳
      * @return LocalDateTime
      */
     public static LocalDateTime timestampToLocalDateTime(long timestamp) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
-    }
-
-
-    /**
-     * 将LocalDateTime格式的时间格式化
-     *
-     * @return
-     */
-    public static String formatLocalDateTime(LocalDateTime localDateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return localDateTime.format(formatter);
     }
 
 

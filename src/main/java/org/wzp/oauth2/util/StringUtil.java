@@ -93,7 +93,7 @@ public class StringUtil {
      * @return
      */
     public static String strPrefix(String str, String separator, Integer index) {
-        if (str.indexOf(separator) == -1) {
+        if (!str.contains(separator)) {
             return str;
         }
         if (index <= 0) {
@@ -113,7 +113,7 @@ public class StringUtil {
      * @return
      */
     public static String strSuffix(String str, String separator, Integer index) {
-        if (str.indexOf(separator) == -1) {
+        if (!str.contains(separator)) {
             return "";
         }
         if (index <= 0) {

@@ -100,7 +100,7 @@ public class RedisUtil {
             keys.forEach(key -> {
                 set[0].addAll(redisTemplate.keys(key));
             });
-            if (set[0] != null && !set[0].isEmpty()) {
+            if (StringUtil.isEmptyList(set[0])) {
                 redisTemplate.delete(set[0]);
             }
         }
@@ -135,7 +135,7 @@ public class RedisUtil {
      *
      * @param map 要插入的 key value 集合
      */
-    public void barchSet(Map<String, Object> map) {
+    public void batchSet(Map<String, Object> map) {
         redisTemplate.opsForValue().multiSet(map);
     }
 

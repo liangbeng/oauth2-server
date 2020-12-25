@@ -18,7 +18,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,8 +50,7 @@ public class IpUtil {
         // 得到类中的所有属性集合
         Field[] fs = jsonClass.getDeclaredFields();
         Map<String, String> map = new HashMap<>();
-        for (int i = 0; i < fs.length; i++) {
-            Field f = fs[i];
+        for (Field f : fs) {
             f.setAccessible(true); //设置属性为可以访问的
             try {
                 // 得到此属性的值
@@ -72,7 +74,7 @@ public class IpUtil {
      */
     public static String getRealIp(HttpServletRequest request) {
         String ip = request.getHeader("x-forwarded-for");
-        if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip) && ip.indexOf(",") != -1) {
+        if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip) && ip.contains(",")) {
             // 多次反向代理后会有多个ip值，第一个ip才是真实ip
             ip = ip.split(",")[0];
         }
@@ -106,28 +108,24 @@ public class IpUtil {
 
 
     /**
-     * 获取ip地址所在的省
+     * 获取ip地址所在的省和市
      *
      * @param ip
      * @return
      */
-    public static String getProvince(String ip) {
+    public static List getProvinceAndCity(String ip) {
+        List<String> list = new ArrayList();
         String[] splitIpString = splitIpString(ip);
         String province = splitIpString[2].replaceAll("\\|", "");
-        return province;
-    }
-
-
-    /**
-     * 获取ip地址所在的市
-     *
-     * @param ip
-     * @return
-     */
-    public static String getCity(String ip) {
-        String[] splitIpString = splitIpString(ip);
         String city = splitIpString[3].replaceAll("\\|", "");
-        return city;
+        // 因为中国香港、澳门、台湾的ip地址解析后，城市显示位置与中国大陆省份同级，故需要向前取一位，
+        // 例如: 中国|0|四川|成都|电信，中国|0|香港|0|电讯盈科，中国|0|澳门|0|澳门电讯，中国|0|台湾省|0|0，美国|0|犹他|盐湖城|0
+        if (city.equals("0")) {
+            city = splitIpString[2].replaceAll("\\|", "");
+        }
+        list.add(province);
+        list.add(city);
+        return list;
     }
 
 
@@ -139,37 +137,24 @@ public class IpUtil {
      */
     public static String[] splitIpString(String ip) {
         String cityIpString = getCityInfo(ip);
-        String[] splitIpString = cityIpString.split("\\|");
-        return splitIpString;
+        return cityIpString.split("\\|");
     }
 
     public static String getCityInfo(String ip) {
         //db文件下载地址，https://gitee.com/lionsoul/ip2region/tree/master/data 下载下来后解压，db文件在data目录下
-        String dbPath = CustomConfig.ipData;
+        String dbPath = "G:\\IpData\\ip2region.db";
         File file = new File(dbPath);
-        if (file.exists() == false) {
-            System.out.println("Error: Invalid ip2region.db file");
+        if (!file.exists()) {
+            System.err.println("不存在ip2region.db文件");
         }
-        //查询算法 B-tree
-        int algorithm = DbSearcher.BTREE_ALGORITHM;
+        if (!Util.isIpAddress(ip)) {
+            System.err.println("无效的ip地址");
+        }
+        //查询算法默认采用 B-tree 对应的method为btreeSearch，此外还有binary 对应method为binarySearch；memory对应method为memorySearch
         try {
             DbConfig config = new DbConfig();
             DbSearcher searcher = new DbSearcher(config, dbPath);
-            Method method = null;
-            switch (algorithm) {
-                case DbSearcher.BTREE_ALGORITHM:
-                    method = searcher.getClass().getMethod("btreeSearch", String.class);
-                    break;
-                case DbSearcher.BINARY_ALGORITHM:
-                    method = searcher.getClass().getMethod("binarySearch", String.class);
-                    break;
-                case DbSearcher.MEMORY_ALGORITYM:
-                    method = searcher.getClass().getMethod("memorySearch", String.class);
-                    break;
-            }
-            if (Util.isIpAddress(ip) == false) {
-                System.out.println("Error: Invalid ip address");
-            }
+            Method method = searcher.getClass().getMethod("btreeSearch", String.class);
             DataBlock dataBlock = (DataBlock) method.invoke(searcher, ip);
             return dataBlock.getRegion();
         } catch (Exception e) {
@@ -188,16 +173,14 @@ public class IpUtil {
     public static String publicNetWork(String ip) {
         String publicNetWork = CustomConfig.publicNetWork;
         StringBuilder inputLine = new StringBuilder();
-        String read = "";
-        URL url = null;
-        HttpURLConnection urlConnection = null;
         BufferedReader in = null;
         try {
-            url = new URL(publicNetWork);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "UTF-8"));
+            URL url = new URL(publicNetWork);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), StandardCharsets.UTF_8));
+            String read = "";
             while ((read = in.readLine()) != null) {
-                inputLine.append(read + "\r\n");
+                inputLine.append(read).append("\r\n");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -210,7 +193,7 @@ public class IpUtil {
                 }
             }
         }
-        Pattern p = Pattern.compile("\\<dd class\\=\"fz24\">(.*?)\\<\\/dd>");
+        Pattern p = Pattern.compile("<dd class=\"fz24\">(.*?)</dd>");
         Matcher m = p.matcher(inputLine.toString());
         if (m.find()) {
             String ipStr = m.group(1);

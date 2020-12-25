@@ -3,6 +3,7 @@ package org.wzp.oauth2.util;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ResourceUtils;
+import org.wzp.oauth2.config.CustomConfig;
 
 import java.io.*;
 
@@ -29,10 +30,10 @@ public class FileUtil {
                 String filename = dir.getName();
                 //输出文件全路径
                 String filePath = dir.getPath();
-                //输出文件父路径
-                String strParentDirectory = dir.getParent();
                 //输出文件的父文件名
-                String ParentDirectory = dir.getParentFile().getName();
+                String parentDirectory = dir.getParentFile().getName();
+                //输出文件父路径
+                String parentDirectoryPath = dir.getParent();
             }
         }
     }
@@ -59,29 +60,22 @@ public class FileUtil {
     /**
      * 删除目录（文件夹）以及目录下的文件(包括目录自身)
      *
-     * @param filePath
+     * @param file 文件
      * @return
      */
-    public static boolean delFolder(String filePath) {
+    public static boolean deleteFolder(File file) {
         boolean flag = true;
-        if (filePath != null) {
-            File file = new File(filePath);
-            if (file.exists()) {
-                File[] filePaths = file.listFiles();
-                for (File f : filePaths) {
-                    if (f.isFile()) {
-                        f.delete();
-                    }
-                    if (f.isDirectory()) {
-                        String fPath = f.getPath();
-                        delFolder(fPath);
-                        f.delete();
-                    }
+        if (file.exists()) {
+            File[] filePaths = file.listFiles();
+            for (File f : filePaths) {
+                if (f.isDirectory()) {
+                    deleteFolder(f);
                 }
-                //删除当前目录
-                if (file.isDirectory()) {
-                    file.delete();
-                }
+                f.delete();
+            }
+            //删除当前目录
+            if (file.isDirectory()) {
+                file.delete();
             }
         } else {
             flag = false;
@@ -94,7 +88,7 @@ public class FileUtil {
      * 获取文件名前缀
      *
      * @param fileName 123.zip
-     * @return 123
+     * @return 123 不包括分隔符
      */
     public static String getFilePrefix(String fileName) {
         return StringUtil.strPrefix(fileName, ".", 0);
@@ -105,7 +99,7 @@ public class FileUtil {
      * 获取文件名后缀
      *
      * @param fileName 123.zip
-     * @return .zip
+     * @return .zip 包括分隔符
      */
     public static String getFileSuffix(String fileName) {
         return StringUtil.strSuffix(fileName, ".", 0);
@@ -115,14 +109,14 @@ public class FileUtil {
     /**
      * 复制文件
      *
-     * @param srcFolder
-     * @param destFolder
+     * @param srcFolder 待复制文件
+     * @param destFolder 复制后的文件
      */
     public static void move(File srcFolder, File destFolder) {
-        File[] fileArray = srcFolder.listFiles();
         if (!destFolder.exists()) {
             destFolder.mkdirs();
         }
+        File[] fileArray = srcFolder.listFiles();
         for (File file : fileArray) {
             if (file.isDirectory()) {
                 String folderName = file.getName();
@@ -171,8 +165,8 @@ public class FileUtil {
     /**
      * 获取文件的md5值
      *
-     * @param path
-     * @return
+     * @param path 文件路径
+     * @return md5值
      */
     public static String fileMd5(String path) {
         String md5 = null;
@@ -189,8 +183,8 @@ public class FileUtil {
     /**
      * 文件重命名
      *
-     * @param filePrefix
-     * @param filePath
+     * @param filePrefix 重命名前缀
+     * @param filePath 文件路径
      */
     public static void renameFile(String filePrefix, String filePath) {
         File file = new File(filePath);
@@ -220,6 +214,65 @@ public class FileUtil {
         }
         index += 1;
         return index;
+    }
+
+
+    /**
+     * 调用7z进行解压
+     *
+     * @param filePath 文件路径
+     * @throws Exception 错误
+     */
+    public static String unZip(String filePath) throws Exception {
+        File zipFile = new File(filePath);
+        if (!zipFile.exists()) {
+            log.error(filePath + "不存在...");
+            throw new Exception();
+        }
+        File zipExeFile = new File(CustomConfig.zipExe);
+        String unzipPath = zipFile.getParent() + File.separator + System.currentTimeMillis();
+        // zipFile.getAbsolutePath() 指压缩的文件路径, unzipPath 指解压到哪儿的文件路径
+        String exec = String.format(zipExeFile + " x \"" + zipFile.getAbsolutePath() + "\" -o\"" + unzipPath) + "\"";
+        runTime(exec);
+        return unzipPath;
+    }
+
+
+    /**
+     * 调用7z压缩文件并加密
+     *
+     * @param filePath 文件路径
+     * @throws IOException
+     */
+    public static String zip(String filePath) throws Exception {
+        File zipFile = new File(filePath);
+        if (!zipFile.exists()) {
+            log.error(filePath + "不存在...");
+            throw new Exception();
+        }
+        File zipExeFile = new File(CustomConfig.zipExe);
+        String fileName = System.currentTimeMillis() + FileUtil.getFileSuffix(filePath);
+        String zipPath = CustomConfig.fileSave + File.separator + fileName;
+        // zipPath 指压缩到哪儿的文件路径  filePath 指要进行压缩的文件路径
+        String exec = String.format(zipExeFile + " a " + zipPath + " " + filePath + "\\*" + " -pnanfengluojin");
+        runTime(exec);
+        return fileName;
+    }
+
+
+    private static void runTime(String exec) throws Exception {
+        Runtime runtime = Runtime.getRuntime();
+        Process process = runtime.exec(exec);
+        InputStream is = process.getInputStream();
+        BufferedReader bd = new BufferedReader(new InputStreamReader(is));
+        String line;
+        while ((line = bd.readLine()) != null) {
+            System.out.println(line);
+        }
+        process.waitFor();
+        is.close();
+        bd.close();
+        process.destroy();
     }
 
 

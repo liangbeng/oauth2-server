@@ -28,7 +28,7 @@ public class CodeUtil {
      * Object[1]：验证码图片。
      */
     public static Object[] createImage() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         // 1.创建空白图片
         BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         // 2.获取图片画笔
@@ -56,7 +56,7 @@ public class CodeUtil {
             // 设置随机颜色
             graphic.setColor(getRandomColor());
             // 随机画线
-            graphic.drawLine(ran.nextInt(WIDTH), ran.nextInt(HEIGHT),ran.nextInt(WIDTH), ran.nextInt(HEIGHT));
+            graphic.drawLine(ran.nextInt(WIDTH), ran.nextInt(HEIGHT), ran.nextInt(WIDTH), ran.nextInt(HEIGHT));
         }
         // 7.返回验证码和图片
         return new Object[]{sb.toString(), image};
@@ -67,9 +67,7 @@ public class CodeUtil {
      */
     public static Color getRandomColor() {
         Random ran = new Random();
-        Color color = new Color(ran.nextInt(256),
-                ran.nextInt(256), ran.nextInt(256));
-        return color;
+        return new Color(ran.nextInt(256), ran.nextInt(256), ran.nextInt(256));
     }
 
 }

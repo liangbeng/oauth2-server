@@ -29,11 +29,11 @@ public class QRCodeUtil {
     private static final int HEIGHT = 60;
 
     private static BufferedImage createImage(String content, String imgPath, boolean needCompress) throws Exception {
-        Hashtable hints = new Hashtable();
-        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-        hints.put(EncodeHintType.CHARACTER_SET, CHARSET);
-        hints.put(EncodeHintType.MARGIN, 1);
-        BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, QRCODE_SIZE, QRCODE_SIZE, hints);
+        Hashtable hashtable = new Hashtable();
+        hashtable.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        hashtable.put(EncodeHintType.CHARACTER_SET, CHARSET);
+        hashtable.put(EncodeHintType.MARGIN, 1);
+        BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, QRCODE_SIZE, QRCODE_SIZE, hashtable);
         int width = bitMatrix.getWidth();
         int height = bitMatrix.getHeight();
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -42,11 +42,10 @@ public class QRCodeUtil {
                 image.setRGB(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
             }
         }
-        if (imgPath == null || "".equals(imgPath)) {
-            return image;
+        // 如果图片路径不为空则插入图片
+        if (!StringUtil.isEmpty(imgPath)) {
+            QRCodeUtil.insertImage(image, imgPath, needCompress);
         }
-        // 插入图片
-        QRCodeUtil.insertImage(image, imgPath, needCompress);
         return image;
     }
 
@@ -86,24 +85,6 @@ public class QRCodeUtil {
     }
 
 
-    public static BufferedImage createImages(String content) throws Exception {
-        Hashtable hints = new Hashtable();
-        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-        hints.put(EncodeHintType.CHARACTER_SET, CHARSET);
-        hints.put(EncodeHintType.MARGIN, 1);
-        BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 198, 198, hints);
-        int width = bitMatrix.getWidth();
-        int height = bitMatrix.getHeight();
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                image.setRGB(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
-            }
-        }
-        return image;
-    }
-
-
     public static void encode(String content, String imgPath, String destPath, boolean needCompress) throws Exception {
         BufferedImage image = QRCodeUtil.createImage(content, imgPath, needCompress);
         mkdirs(destPath);
@@ -112,8 +93,7 @@ public class QRCodeUtil {
 
 
     public static BufferedImage encode(String content, String imgPath, boolean needCompress) throws Exception {
-        BufferedImage image = QRCodeUtil.createImage(content, imgPath, needCompress);
-        return image;
+        return QRCodeUtil.createImage(content, imgPath, needCompress);
     }
 
 
