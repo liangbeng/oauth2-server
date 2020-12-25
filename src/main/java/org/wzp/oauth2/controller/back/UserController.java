@@ -1,8 +1,6 @@
 package org.wzp.oauth2.controller.back;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import io.swagger.annotations.Api;
@@ -376,17 +374,17 @@ public class UserController extends BaseConfig {
     public Result easyExcelDownload() {
         //获取总数据量
         Integer totalNum = userMapper.findUserCount();
+        String fileName = "系统用户表" + DateUtil.sysTime() + ".xlsx";
         //保存到服务器上，返回url给前端，供前端下载
-        String fileName = "/excel/系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelExport = userEasyExcelWriteService.excelExport(totalNum, fileName);
+        String filename = CustomConfig.excelSavePath + fileName;
+        boolean excelExport = userEasyExcelWriteService.excelExport(totalNum, filename);
         if (!excelExport) {
             return Result.error(ResultCodeEnum.EXCEL_EXPORT_FAIL);
         }
-//        boolean excelDownload =  new EasyExcelUtil().downloadExcel(response, CustomConfig.fileSave + fileName);
+//        boolean excelDownload = new EasyExcelUtil().downloadExcel(response, filename);
 
         //直接通过客户端浏览器下载
-        /*String fileName = "系统用户表" + DateUtil.sysTime() + ".xlsx";
-        boolean excelDownload = userEasyExcelWriteService.excelDownload(response, totalNum, fileName);
+        /*boolean excelDownload = userEasyExcelWriteService.excelDownload(response, totalNum, fileName);
 
         if (!excelDownload) {
             return Result.error(ResultCodeEnum.EXCEL_DOWNLAND_FAIL);

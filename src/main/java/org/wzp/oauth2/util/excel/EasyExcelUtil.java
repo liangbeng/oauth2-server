@@ -22,7 +22,7 @@ public class EasyExcelUtil {
     private List<WriteSheet> sheets;
 
     //excel存放的文件夹
-    private String excelSavePath = "G:/oauth-server";
+    private String excelSavePath = "G:/oauth-server/";
 
     //默认每个sheet存储一百万的数据
     private static final int defaultSheetNum = 1000000;
@@ -162,7 +162,7 @@ public class EasyExcelUtil {
     public boolean downloadExcel(HttpServletResponse response, String filename) {
         try {
             //获取服务器文件
-            File file = new File(filename);
+            File file = new File(excelSavePath + filename);
             InputStream ins = new FileInputStream(file);
             getResponse(response, file.getName());
             OutputStream os = response.getOutputStream();

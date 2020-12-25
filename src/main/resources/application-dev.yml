@@ -61,7 +61,9 @@ knife4j:
 
 custom-config:
   tokenUrl: http://127.0.0.1:10000
+  ipData: G:\IpData\ip2region.db
   zipExe: E:\7-Zip\7z.exe
-  fileSave: G:\oauth-server
+  fileSave: G:\oauth-server\
+  excelSavePath: excel\
   emailExchange: emailExchange
   routingKey: oauth

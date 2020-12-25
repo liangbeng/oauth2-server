@@ -18,11 +18,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.wzp.oauth2.config.CustomConfig;
-import org.wzp.oauth2.util.Result;
+import org.wzp.oauth2.util.*;
 import org.wzp.oauth2.enumeration.ResultCodeEnum;
-import org.wzp.oauth2.util.CodeUtil;
-import org.wzp.oauth2.util.QRCodeUtil;
-import org.wzp.oauth2.util.StringUtil;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -60,8 +57,7 @@ public class CommonController {
     @ApiOperation("获取系统时间")
     @GetMapping("/getTime")
     public Result getTime() {
-        Long sysTime = System.currentTimeMillis();
-        return Result.ok(sysTime);
+        return Result.ok(DateUtil.sysTime());
     }
 
 

@@ -24,6 +24,7 @@ public class CustomConfig {
     public static String publicNetWork;
     public static String emailExchange;
     public static String routingKey;
+    public static String excelSavePath;
 
     public String getWithClient() {
         return withClient;
@@ -111,5 +112,13 @@ public class CustomConfig {
 
     public void setRoutingKey(String routingKey) {
         CustomConfig.routingKey = routingKey;
+    }
+
+    public String getExcelSavePath() {
+        return excelSavePath;
+    }
+
+    public void setExcelSavePath(String excelSavePath) {
+        CustomConfig.excelSavePath = excelSavePath;
     }
 }
