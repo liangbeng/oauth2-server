@@ -163,7 +163,7 @@ public class ChunkUploadUtil {
         }
         if (chunk == chunks - 1) {
             // 删除分片文件夹
-            FileUtil.delFolder(chunkFilePath);
+            FileUtil.deleteFolder(new File(chunkFilePath));
             return new FileVO(fileName);
         } else {
             throw new CustomException(ResultCodeEnum.UPLOADING);
