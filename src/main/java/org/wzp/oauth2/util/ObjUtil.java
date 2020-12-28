@@ -1,21 +1,24 @@
 package org.wzp.oauth2.util;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.lang.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Author: zp.wei
  * @DATE: 2020/10/21 13:08
  */
-public class StringUtil {
+public class ObjUtil {
 
 
     /**
      * 检查参数是否为空
      *
-     * @param str
+     * @param str 待检查参数
      * @return
      */
     public static boolean isEmpty(@Nullable Object str) {
@@ -26,10 +29,10 @@ public class StringUtil {
     /**
      * 检查参数是否为空 排除== "" 的验证
      *
-     * @param str
+     * @param str 待检查参数
      * @return
      */
-    public static boolean isEmptyStr(@Nullable Object str) {
+    public static boolean isNull(@Nullable Object str) {
         return (str == null);
     }
 
@@ -37,7 +40,7 @@ public class StringUtil {
     /**
      * 检查 list 是否为空
      *
-     * @param collection
+     * @param collection 待检查参数
      * @return
      */
     public static boolean isEmptyList(@Nullable Collection<?> collection) {
@@ -48,7 +51,7 @@ public class StringUtil {
     /**
      * 检查 map 是否为空
      *
-     * @param map
+     * @param map 待检查参数
      * @return
      */
     public static boolean isEmptyMap(@Nullable Map<?, ?> map) {
@@ -59,9 +62,9 @@ public class StringUtil {
     /**
      * 获取指定长度之后部分
      *
-     * @param str
-     * @param beginIndex
-     * @return
+     * @param str        待分割字符串
+     * @param beginIndex 起始位置
+     * @return 返回分割后的字符串(包含起始位置对应的字符)
      */
     public static String subString(String str, int beginIndex) {
         if (str.length() - beginIndex > 0) {
@@ -74,12 +77,15 @@ public class StringUtil {
     /**
      * 获取指定部分
      *
-     * @param str
-     * @param beginIndex
-     * @param endIndex
+     * @param str        待分割字符串
+     * @param beginIndex 起始位置
+     * @param endIndex   结束位置
      * @return
      */
     public static String subSpecString(String str, int beginIndex, int endIndex) {
+        if (str.length() - beginIndex < 0 || str.length() - endIndex < 0 || endIndex > beginIndex) {
+            return "";
+        }
         return str.substring(beginIndex, endIndex);
     }
 
@@ -120,6 +126,17 @@ public class StringUtil {
             return str.substring(str.lastIndexOf(separator));
         }
         return str.substring(str.lastIndexOf(separator) + index);
+    }
+
+
+    /**
+     * list去重
+     *
+     * @param list 待去重list
+     * @return 返回去重后的list，保证list中每个元素唯一
+     */
+    public static List deleteDuplicate(List<T> list) {
+        return list.stream().distinct().collect(Collectors.toList());
     }
 
 

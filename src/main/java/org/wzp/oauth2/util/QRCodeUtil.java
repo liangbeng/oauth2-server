@@ -43,7 +43,7 @@ public class QRCodeUtil {
             }
         }
         // 如果图片路径不为空则插入图片
-        if (!StringUtil.isEmpty(imgPath)) {
+        if (!ObjUtil.isEmpty(imgPath)) {
             QRCodeUtil.insertImage(image, imgPath, needCompress);
         }
         return image;

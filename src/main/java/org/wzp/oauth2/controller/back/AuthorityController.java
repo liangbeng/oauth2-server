@@ -21,7 +21,7 @@ import org.wzp.oauth2.mapper.AuthorityMapper;
 import org.wzp.oauth2.mapper.RoleAuthorityMapper;
 import org.wzp.oauth2.util.RedisUtil;
 import org.wzp.oauth2.util.Result;
-import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.ObjUtil;
 import org.wzp.oauth2.vo.AuthorityVO;
 import org.wzp.oauth2.vo.IdVO;
 
@@ -52,7 +52,7 @@ public class AuthorityController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN')")
     @PostMapping("/save")
     public Result<Authority> save(@RequestBody AuthorityVO authorityVO) {
-        if (StringUtil.isEmpty(authorityVO.getName())) {
+        if (ObjUtil.isEmpty(authorityVO.getName())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Authority authority = new Authority();
@@ -69,7 +69,7 @@ public class AuthorityController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN')")
     @PostMapping("/update")
     public Result<Authority> update(@RequestBody AuthorityVO authorityVO) {
-        if (StringUtil.isEmpty(authorityVO.getName())) {
+        if (ObjUtil.isEmpty(authorityVO.getName())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Authority authority = authorityMapper.selectByPrimaryKey(authorityVO.getId());
@@ -88,7 +88,7 @@ public class AuthorityController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN')")
     @PostMapping("/delete")
     public Result delete(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Long id = idVO.getId();
@@ -97,7 +97,7 @@ public class AuthorityController extends BaseConfig {
             return Result.error(ResultCodeEnum.PARAM_ERROR);
         }
         List<RoleAuthority> list = roleAuthorityMapper.selectByAuthorityId(id);
-        if (!StringUtil.isEmptyList(list)) {
+        if (!ObjUtil.isEmptyList(list)) {
             return Result.error(ResultCodeEnum.AUTHORITY_HAS_USE);
         }
         authorityMapper.deleteByPrimaryKey(id);
@@ -110,7 +110,7 @@ public class AuthorityController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/getOne")
     public Result<Authority> getOne(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Authority authority = authorityMapper.selectByPrimaryKey(idVO.getId());
@@ -139,7 +139,7 @@ public class AuthorityController extends BaseConfig {
         if (hasKey) {
             pageInfo = (PageInfo) redisUtil.get(key);
         } else {
-            if (!StringUtil.isEmpty(map.get("name"))) {
+            if (!ObjUtil.isEmpty(map.get("name"))) {
                 map.put("name", map.get("name"));
             }
             List<Authority> list = authorityMapper.findAllBySome(map);

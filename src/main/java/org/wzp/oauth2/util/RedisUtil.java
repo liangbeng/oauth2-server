@@ -69,7 +69,7 @@ public class RedisUtil {
      * @param key 键
      */
     public Long deleteKey(String key) {
-        if (StringUtil.isEmpty(key)) {
+        if (ObjUtil.isEmpty(key)) {
             return 0L;
         }
         return redisTemplate.delete(Arrays.asList(key));
@@ -83,7 +83,7 @@ public class RedisUtil {
      */
     public void delAllByKey(String key) {
         Set<String> keys = redisTemplate.keys(key + ":*");
-        if (!StringUtil.isEmptyList(keys)) {
+        if (!ObjUtil.isEmptyList(keys)) {
             redisTemplate.delete(keys);
         }
     }
@@ -95,12 +95,12 @@ public class RedisUtil {
      * @param keys
      */
     public void delAllByKeys(List<String> keys) {
-        if (!StringUtil.isEmptyList(keys)) {
+        if (!ObjUtil.isEmptyList(keys)) {
             final Set<String>[] set = new Set[]{new HashSet<>()};
             keys.forEach(key -> {
                 set[0].addAll(redisTemplate.keys(key));
             });
-            if (StringUtil.isEmptyList(set[0])) {
+            if (ObjUtil.isEmptyList(set[0])) {
                 redisTemplate.delete(set[0]);
             }
         }

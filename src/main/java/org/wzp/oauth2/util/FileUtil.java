@@ -91,7 +91,7 @@ public class FileUtil {
      * @return 123 不包括分隔符
      */
     public static String getFilePrefix(String fileName) {
-        return StringUtil.strPrefix(fileName, ".", 0);
+        return ObjUtil.strPrefix(fileName, ".", 0);
     }
 
 
@@ -102,7 +102,7 @@ public class FileUtil {
      * @return .zip 包括分隔符
      */
     public static String getFileSuffix(String fileName) {
-        return StringUtil.strSuffix(fileName, ".", 0);
+        return ObjUtil.strSuffix(fileName, ".", 0);
     }
 
 

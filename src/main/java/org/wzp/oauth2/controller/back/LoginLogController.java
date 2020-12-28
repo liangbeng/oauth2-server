@@ -18,7 +18,7 @@ import org.wzp.oauth2.enumeration.LoginLogEnum;
 import org.wzp.oauth2.mapper.LoginLogMapper;
 import org.wzp.oauth2.service.ElasticSearchService;
 import org.wzp.oauth2.util.IpUtil;
-import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.ObjUtil;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -85,11 +85,11 @@ public class LoginLogController extends BaseConfig {
         //构建查询条件
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        if (!StringUtil.isEmpty(map.get("username"))) {
+        if (!ObjUtil.isEmpty(map.get("username"))) {
             String username = String.valueOf(map.get("username"));
             boolQueryBuilder.must(QueryBuilders.wildcardQuery("username", "*" + username + "*"));
         }
-        if (!StringUtil.isEmpty(map.get("loginLogEnum"))) {
+        if (!ObjUtil.isEmpty(map.get("loginLogEnum"))) {
             String loginLogEnum = String.valueOf(map.get("loginLogEnum"));
             boolQueryBuilder.must(QueryBuilders.matchQuery("loginLogEnum", loginLogEnum));
         }

@@ -61,9 +61,7 @@ public class UserEasyExcelRead extends AnalysisEventListener<User> {
         log.info("共有{}条数据，开始存储数据库！", list.size());
         UserMapper userMapper = SpringContextUtil.getBean(UserMapper.class);
         //不建议这样循环增加，如果是使用mybatis，则可自己写相关sql进行批量增加，如果是使用mybatis-plus，则其service提供saveBatch的批量新增功能
-        list.forEach(user -> {
-            userMapper.insertSelective(user);
-        });
+        list.forEach(userMapper::insertSelective);
 //        UserService userService = SpringContextUtil.getBean(UserService.class);
 //        userService.saveBatch(list);
         // 存储完成清理 list，避免数据重复

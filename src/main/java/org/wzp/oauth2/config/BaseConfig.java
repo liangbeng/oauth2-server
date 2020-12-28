@@ -21,14 +21,13 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.wzp.oauth2.entity.User;
 import org.wzp.oauth2.mapper.UserMapper;
-import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.ObjUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -185,13 +184,13 @@ public class BaseConfig {
         Integer page = 1;
         Integer size = 10;
         String sort = "id asc";
-        if (StringUtil.isEmpty(map.get("page"))) {
+        if (ObjUtil.isEmpty(map.get("page"))) {
             map.put("page", page);
         }
-        if (StringUtil.isEmpty(map.get("size"))) {
+        if (ObjUtil.isEmpty(map.get("size"))) {
             map.put("size", size);
         }
-        if (StringUtil.isEmpty(map.get("sort"))) {
+        if (ObjUtil.isEmpty(map.get("sort"))) {
             map.put("sort", sort);
         }
         page = Integer.parseInt(String.valueOf(map.get("page")));
@@ -211,16 +210,16 @@ public class BaseConfig {
         Integer size = 10;
         String sortField = "id";
         SortOrder sortOrder = SortOrder.ASC;
-        if (StringUtil.isEmpty(map.get("page"))) {
+        if (ObjUtil.isEmpty(map.get("page"))) {
             map.put("page", String.valueOf(page));
         }
-        if (StringUtil.isEmpty(map.get("size"))) {
+        if (ObjUtil.isEmpty(map.get("size"))) {
             map.put("size", String.valueOf(size));
         }
-        if (!StringUtil.isEmpty(map.get("sort"))) {
+        if (!ObjUtil.isEmpty(map.get("sort"))) {
             String sort = map.get("sort");
-            sortField = StringUtil.strPrefix(sort, " ", 0);
-            String sortCollation = StringUtil.strSuffix(sort, " ", 1);
+            sortField = ObjUtil.strPrefix(sort, " ", 0);
+            String sortCollation = ObjUtil.strSuffix(sort, " ", 1);
             if ("desc".equals(sortCollation)) {
                 sortOrder = SortOrder.DESC;
             }

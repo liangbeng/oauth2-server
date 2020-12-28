@@ -20,7 +20,7 @@ import org.wzp.oauth2.util.Result;
 import org.wzp.oauth2.entity.EmailMsgLog;
 import org.wzp.oauth2.mapper.EmailMsgLogMapper;
 import org.wzp.oauth2.service.ElasticSearchService;
-import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.ObjUtil;
 import org.wzp.oauth2.email.EmailProducer;
 import org.wzp.oauth2.vo.EmailMsgLogVO;
 
@@ -84,11 +84,11 @@ public class EmailController extends BaseConfig {
         //构建查询条件
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-        if (!StringUtil.isEmpty(map.get("title"))) {
+        if (!ObjUtil.isEmpty(map.get("title"))) {
             String title = String.valueOf(map.get("title"));
             boolQueryBuilder.must(QueryBuilders.wildcardQuery("title", "*" + title + "*"));
         }
-        if (!StringUtil.isEmpty(map.get("email"))) {
+        if (!ObjUtil.isEmpty(map.get("email"))) {
             String email = String.valueOf(map.get("email"));
             boolQueryBuilder.must(QueryBuilders.matchQuery("email", email));
         }

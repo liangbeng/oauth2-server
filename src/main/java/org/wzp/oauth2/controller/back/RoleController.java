@@ -22,7 +22,7 @@ import org.wzp.oauth2.mapper.RoleAuthorityMapper;
 import org.wzp.oauth2.mapper.RoleMapper;
 import org.wzp.oauth2.util.RedisUtil;
 import org.wzp.oauth2.util.Result;
-import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.ObjUtil;
 import org.wzp.oauth2.vo.IdVO;
 import org.wzp.oauth2.vo.RoleVO;
 
@@ -53,7 +53,7 @@ public class RoleController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN')")
     @PostMapping("/save")
     public Result<Role> save(@RequestBody RoleVO roleVO) {
-        if (StringUtil.isEmpty(roleVO.getRoleName())) {
+        if (ObjUtil.isEmpty(roleVO.getRoleName())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Role role = new Role();
@@ -69,7 +69,7 @@ public class RoleController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN')")
     @PostMapping("/update")
     public Result<Role> update(@RequestBody RoleVO roleVO) {
-        if (StringUtil.isEmpty(roleVO.getId())) {
+        if (ObjUtil.isEmpty(roleVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Role role = roleMapper.selectByPrimaryKey(roleVO.getId());
@@ -96,7 +96,7 @@ public class RoleController extends BaseConfig {
             return Result.error(ResultCodeEnum.PARAM_ERROR);
         }
         List<RoleAuthority> list = roleAuthorityMapper.selectByRoleId(id);
-        if (!StringUtil.isEmptyList(list)) {
+        if (!ObjUtil.isEmptyList(list)) {
             roleAuthorityMapper.deleteByRoleId(id);
         }
         roleMapper.deleteByPrimaryKey(id);
@@ -109,7 +109,7 @@ public class RoleController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/getOne")
     public Result<Role> getOne(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Role role = roleMapper.selectByPrimaryKey(idVO.getId());
@@ -139,7 +139,7 @@ public class RoleController extends BaseConfig {
         if (hasKey) {
             pageInfo = (PageInfo) redisUtil.get(key);
         } else {
-            if (!StringUtil.isEmpty(map.get("roleName"))) {
+            if (!ObjUtil.isEmpty(map.get("roleName"))) {
                 map.put("roleName", map.get("roleName"));
             }
             List<Role> list = roleMapper.findAllBySome(map);

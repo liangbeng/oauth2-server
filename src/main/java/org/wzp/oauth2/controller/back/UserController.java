@@ -29,7 +29,6 @@ import org.wzp.oauth2.service.UserEasyExcelWriteService;
 import org.wzp.oauth2.service.UserExcelService;
 import org.wzp.oauth2.service.impl.UserEasyExcelRead;
 import org.wzp.oauth2.util.*;
-import org.wzp.oauth2.util.excel.EasyExcelUtil;
 import org.wzp.oauth2.vo.IdVO;
 import org.wzp.oauth2.vo.LoginVO;
 import org.wzp.oauth2.vo.UpdatePasswordVO;
@@ -74,7 +73,7 @@ public class UserController extends BaseConfig {
     @ApiOperation("用户登录")
     @PostMapping("/login")
     public Result login(@RequestBody LoginVO loginVO) {
-        if (StringUtil.isEmpty(loginVO.getUsername()) || StringUtils.isEmpty(loginVO.getPassword())) {
+        if (ObjUtil.isEmpty(loginVO.getUsername()) || StringUtils.isEmpty(loginVO.getPassword())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Map<String, Object> map1 = new HashMap<>(2);
@@ -91,12 +90,12 @@ public class UserController extends BaseConfig {
         if (!flag) {
             return Result.error(ResultCodeEnum.ERROR_USERNAME_OR_PASSWORD);
         }
-        Map<String, String> responseEntity = getToken(username, password);
-        if (StringUtil.isEmptyMap(responseEntity)) {
+        Map responseEntity = getToken(username, password);
+        if (ObjUtil.isEmptyMap(responseEntity)) {
             return Result.error(ResultCodeEnum.FORBIDDEN);
         }
         List<Authority> list = authorityMapper.findByUsername(username);
-        if (!StringUtil.isEmptyList(list)) {
+        if (!ObjUtil.isEmptyList(list)) {
             user.setAuthorityList(list);
         }
         String ip = IpUtil.getRealIp(request);
@@ -113,7 +112,7 @@ public class UserController extends BaseConfig {
     @ApiOperationSupport(ignoreParameters = {"id", "updatedTime"})
     @PostMapping("/register")
     public Result<User> register(@RequestBody UserVO userVO) {
-        if (StringUtil.isEmpty(userVO.getUsername())) {
+        if (ObjUtil.isEmpty(userVO.getUsername())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         String username = userVO.getUsername();
@@ -135,14 +134,14 @@ public class UserController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_USER')")// 只能user角色才能访问该接口
     @PostMapping("/update")
     public Result<User> update(@RequestBody UserVO userVO) {
-        if (StringUtil.isEmpty(userVO.getId())) {
+        if (ObjUtil.isEmpty(userVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         User user = userMapper.selectByPrimaryKey(userVO.getId());
         if (user == null) {
             return Result.error(ResultCodeEnum.PARAM_ERROR);
         }
-        if (!StringUtil.isEmpty(userVO.getUsername())) {
+        if (!ObjUtil.isEmpty(userVO.getUsername())) {
             User user1 = userMapper.selectByUsername(userVO.getUsername());
             if (user1 != null && !user1.getId().equals(userVO.getId())) {
                 return Result.error(ResultCodeEnum.HAS_USER);
@@ -150,9 +149,9 @@ public class UserController extends BaseConfig {
         }
         BeanUtils.copyProperties(userVO, user);
         userMapper.updateByPrimaryKeySelective(user);
-        if (!StringUtil.isEmptyList(userVO.getRoleIds())) {
+        if (!ObjUtil.isEmptyList(userVO.getRoleIds())) {
             List<UserRole> userRoleList = userRoleMapper.selectByUserId(user.getId());
-            if (!StringUtil.isEmptyList(userRoleList)) {
+            if (!ObjUtil.isEmptyList(userRoleList)) {
                 userRoleMapper.deleteByUserId(user.getId());
             }
             List<Long> roleIds = userVO.getRoleIds();
@@ -171,7 +170,7 @@ public class UserController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')") // 只能admin角色才能访问该接口
     @PostMapping("/delete")
     public Result delete(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         User user = userMapper.selectByPrimaryKey(idVO.getId());
@@ -179,7 +178,7 @@ public class UserController extends BaseConfig {
             return Result.error(ResultCodeEnum.PARAM_ERROR);
         }
         List<UserRole> list = userRoleMapper.selectByUserId(idVO.getId());
-        if (!StringUtil.isEmptyList(list)) {
+        if (!ObjUtil.isEmptyList(list)) {
             list.forEach(userRole -> {
                 userRoleMapper.deleteByPrimaryKey(userRole.getId());
             });
@@ -193,7 +192,7 @@ public class UserController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')") // 只能admin角色才能访问该接口
     @PostMapping("/freeze")
     public Result freeze(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         User user = userMapper.selectByPrimaryKey(idVO.getId());
@@ -210,7 +209,7 @@ public class UserController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')") // 只能admin角色才能访问该接口
     @PostMapping("/activation")
     public Result activation(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         User user = userMapper.selectByPrimaryKey(idVO.getId());
@@ -226,7 +225,7 @@ public class UserController extends BaseConfig {
     @ApiOperation("根据id查询数据")
     @PostMapping("/getOne")
     public Result<User> getOne(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         User user = userMapper.selectByPrimaryKey(idVO.getId());
@@ -256,10 +255,10 @@ public class UserController extends BaseConfig {
         if (hasKey) {
             pageInfo = (PageInfo) redisUtil.get(key);
         } else {
-            if (!StringUtil.isEmpty(map.get("name"))) {
+            if (!ObjUtil.isEmpty(map.get("name"))) {
                 map.put("name", map.get("name"));
             }
-            if (!StringUtil.isEmpty(map.get("username"))) {
+            if (!ObjUtil.isEmpty(map.get("username"))) {
                 map.put("username", map.get("username"));
             }
             List<User> list = userMapper.findAllBySome(map);
@@ -274,7 +273,7 @@ public class UserController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/updatePassword")
     public Result updatePassword(@RequestBody UpdatePasswordVO updatePasswordVO) {
-        if (StringUtil.isEmpty(updatePasswordVO.getId())) {
+        if (ObjUtil.isEmpty(updatePasswordVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         User user = userMapper.selectByPrimaryKey(updatePasswordVO.getId());
@@ -304,7 +303,7 @@ public class UserController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN')")
     @PostMapping("/resetPassword")
     public Result resetPassword(@RequestBody UpdatePasswordVO updatePasswordVO) {
-        if (StringUtil.isEmpty(updatePasswordVO.getId())) {
+        if (ObjUtil.isEmpty(updatePasswordVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         User user = userMapper.selectByPrimaryKey(updatePasswordVO.getId());
@@ -332,10 +331,10 @@ public class UserController extends BaseConfig {
     @PostMapping("/excelDownloads")
     public Result excelDownloads(@RequestBody HashMap<String, Object> map) {
         HashMap<String, Object> map1 = new HashMap<>(5);
-        if (!StringUtil.isEmpty(map.get("name"))) {
+        if (!ObjUtil.isEmpty(map.get("name"))) {
             map1.put("name", map.get("name"));
         }
-        if (!StringUtil.isEmpty(map.get("username"))) {
+        if (!ObjUtil.isEmpty(map.get("username"))) {
             map1.put("username", map.get("username"));
         }
         List<User> list = userMapper.findAllBySome(map1);
@@ -403,6 +402,7 @@ public class UserController extends BaseConfig {
         // 这里 需要指定用哪个class去读，然后读取第一个sheet 文件流会自动关闭
         //读取单个sheet
 //        EasyExcel.read(filename, User.class, new UserEasyExcelRead()).sheet().doRead();
+
         //读取多个sheet
         EasyExcel.read(filename, User.class, new UserEasyExcelRead()).doReadAll();
         return Result.ok(ResultCodeEnum.EXCEL_IMPORT_SUCCESS);

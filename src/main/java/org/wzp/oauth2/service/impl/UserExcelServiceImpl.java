@@ -10,7 +10,7 @@ import org.wzp.oauth2.config.CustomConfig;
 import org.wzp.oauth2.entity.User;
 import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.service.UserExcelService;
-import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.ObjUtil;
 import org.wzp.oauth2.util.excel.ExcelData;
 import org.wzp.oauth2.util.excel.ExcelUtils;
 
@@ -80,8 +80,8 @@ public class UserExcelServiceImpl extends BaseConfig implements UserExcelService
             Cell cell4 = row.getCell(4);
             Cell cell5 = row.getCell(5);
             Cell cell6 = row.getCell(6);
-            if (StringUtil.isEmpty(cell) || StringUtil.isEmpty(cell1) || StringUtil.isEmpty(cell2) || StringUtil.isEmpty(cell3)
-                    || StringUtil.isEmpty(cell4) || StringUtil.isEmpty(cell5) || StringUtil.isEmpty(cell6)) {
+            if (ObjUtil.isEmpty(cell) || ObjUtil.isEmpty(cell1) || ObjUtil.isEmpty(cell2) || ObjUtil.isEmpty(cell3)
+                    || ObjUtil.isEmpty(cell4) || ObjUtil.isEmpty(cell5) || ObjUtil.isEmpty(cell6)) {
                 continue;
             }
             String username = cell.getStringCellValue();

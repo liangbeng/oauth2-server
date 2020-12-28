@@ -142,7 +142,7 @@ public class CommonController {
         try {
             stream = response.getOutputStream();
             //使用工具类生成二维码 判断是否有logo图片的路径，若有则生成带logo的二维码
-            if (StringUtil.isEmpty(request.getParameter("logoPath"))) {
+            if (ObjUtil.isEmpty(request.getParameter("logoPath"))) {
                 QRCodeUtil.encode(code, stream);
             } else {
                 String logoPath = request.getParameter("logoPath");

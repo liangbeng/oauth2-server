@@ -19,7 +19,7 @@ import org.wzp.oauth2.enumeration.ResultCodeEnum;
 import org.wzp.oauth2.mapper.FileListMapper;
 import org.wzp.oauth2.util.RedisUtil;
 import org.wzp.oauth2.util.Result;
-import org.wzp.oauth2.util.StringUtil;
+import org.wzp.oauth2.util.ObjUtil;
 import org.wzp.oauth2.vo.FileListVO;
 import org.wzp.oauth2.vo.IdVO;
 
@@ -48,7 +48,7 @@ public class FileListController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/save")
     public Result<FileList> save(@RequestBody FileListVO fileListVO) {
-        if (StringUtil.isEmpty(fileListVO.getFileName())) {
+        if (ObjUtil.isEmpty(fileListVO.getFileName())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         FileList fileList = new FileList();
@@ -64,7 +64,7 @@ public class FileListController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("/update")
     public Result<FileList> update(@RequestBody FileListVO fileListVO) {
-        if (StringUtil.isEmpty(fileListVO.getId())) {
+        if (ObjUtil.isEmpty(fileListVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         FileList fileList = fileListMapper.selectByPrimaryKey(fileListVO.getId());
@@ -81,7 +81,7 @@ public class FileListController extends BaseConfig {
     @ApiOperation("根据id获取文件")
     @PostMapping("/getOne")
     public Result<FileList> getOne(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         FileList fileList = fileListMapper.selectByPrimaryKey(idVO.getId());
@@ -97,7 +97,7 @@ public class FileListController extends BaseConfig {
     @PreAuthorize("hasAnyRole('ROLE_SUPERADMIN')")
     @PostMapping("/delete")
     public Result delete(@RequestBody IdVO idVO) {
-        if (StringUtil.isEmpty(idVO.getId())) {
+        if (ObjUtil.isEmpty(idVO.getId())) {
             return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         FileList fileList = fileListMapper.selectByPrimaryKey(idVO.getId());
@@ -129,10 +129,10 @@ public class FileListController extends BaseConfig {
         if (hasKey) {
             pageInfo = (PageInfo) redisUtil.get(key);
         } else {
-            if (!StringUtil.isEmpty(map.get("fileName"))) {
+            if (!ObjUtil.isEmpty(map.get("fileName"))) {
                 map.put("fileName", map.get("fileName"));
             }
-            if (!StringUtil.isEmpty(map.get("removed"))) {
+            if (!ObjUtil.isEmpty(map.get("removed"))) {
                 map.put("removed", map.get("removed"));
             }
             List<FileList> list = fileListMapper.findAllBySome(map);
