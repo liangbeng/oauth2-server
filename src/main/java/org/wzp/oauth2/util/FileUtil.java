@@ -6,6 +6,8 @@ import org.springframework.util.ResourceUtils;
 import org.wzp.oauth2.config.CustomConfig;
 
 import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * @Author: zp.wei
@@ -109,7 +111,7 @@ public class FileUtil {
     /**
      * 复制文件
      *
-     * @param srcFolder 待复制文件
+     * @param srcFolder  待复制文件
      * @param destFolder 复制后的文件
      */
     public static void move(File srcFolder, File destFolder) {
@@ -184,7 +186,7 @@ public class FileUtil {
      * 文件重命名
      *
      * @param filePrefix 重命名前缀
-     * @param filePath 文件路径
+     * @param filePath   文件路径
      */
     public static void renameFile(String filePrefix, String filePath) {
         File file = new File(filePath);
@@ -214,6 +216,55 @@ public class FileUtil {
         }
         index += 1;
         return index;
+    }
+
+
+    /**
+     * 通过url下载文件到本地或者服务器
+     *
+     * @param url 文件url
+     * @return 返回 文件名
+     */
+    public static String downloadFileByUrl(String url, String filePath) {
+        //创建不同的文件夹目录
+        File file1 = new File(filePath);
+        if (!file1.exists()) {
+            file1.mkdirs();
+        }
+        File file = new File(url);
+        try {
+            // 建立链接
+            URL httpUrl = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) httpUrl.openConnection();
+            //以Post方式提交表单，默认get方式
+            conn.setRequestMethod("get");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            // post方式不能使用缓存
+            conn.setUseCaches(false);
+            //连接指定的资源
+            conn.connect();
+            //获取网络输入流
+            InputStream inputStream = conn.getInputStream();
+            BufferedInputStream bis = new BufferedInputStream(inputStream);
+            //写入到文件（注意文件保存路径的后面一定要加上文件的名称）
+            FileOutputStream fileOut = new FileOutputStream(filePath + file.getName());
+            BufferedOutputStream bos = new BufferedOutputStream(fileOut);
+            byte[] buf = new byte[4096];
+            int length = bis.read(buf);
+            //保存文件
+            while (length != -1) {
+                bos.write(buf, 0, length);
+                length = bis.read(buf);
+            }
+            bos.close();
+            bis.close();
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("抛出异常！！");
+        }
+        return file.getName();
     }
 
 
@@ -258,7 +309,6 @@ public class FileUtil {
         runTime(exec);
         return fileName;
     }
-
 
     private static void runTime(String exec) throws Exception {
         Runtime runtime = Runtime.getRuntime();
