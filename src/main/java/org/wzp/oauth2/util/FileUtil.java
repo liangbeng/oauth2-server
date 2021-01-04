@@ -18,6 +18,19 @@ public class FileUtil {
 
 
     /**
+     * 判断文件是否存在，不存在则创建
+     *
+     * @param filePath 文件路径
+     */
+    private static void fileExist(String filePath) {
+        File file = new File(filePath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+    }
+
+
+    /**
      * 遍历文件夹
      *
      * @param file
@@ -226,18 +239,14 @@ public class FileUtil {
      * @return 返回 文件名
      */
     public static String downloadFileByUrl(String url, String filePath) {
-        //创建不同的文件夹目录
-        File file1 = new File(filePath);
-        if (!file1.exists()) {
-            file1.mkdirs();
-        }
+        fileExist(filePath);
         File file = new File(url);
         try {
             // 建立链接
             URL httpUrl = new URL(url);
             HttpURLConnection conn = (HttpURLConnection) httpUrl.openConnection();
             //以Post方式提交表单，默认get方式
-            conn.setRequestMethod("get");
+            conn.setRequestMethod("GET");
             conn.setDoInput(true);
             conn.setDoOutput(true);
             // post方式不能使用缓存
