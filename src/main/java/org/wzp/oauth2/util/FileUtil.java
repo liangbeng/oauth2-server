@@ -251,16 +251,15 @@ public class FileUtil {
             InputStream inputStream = conn.getInputStream();
             BufferedInputStream bis = new BufferedInputStream(inputStream);
             //写入到文件（注意文件保存路径的后面一定要加上文件的名称）
-            FileOutputStream fileOut = new FileOutputStream(filePath + file.getName());
-            BufferedOutputStream bos = new BufferedOutputStream(fileOut);
+            FileOutputStream fos = new FileOutputStream(filePath + file.getName());
             byte[] buf = new byte[4096];
             int length = bis.read(buf);
             //保存文件
             while (length != -1) {
-                bos.write(buf, 0, length);
+                fos.write(buf, 0, length);
                 length = bis.read(buf);
             }
-            bos.close();
+            fos.close();
             bis.close();
             conn.disconnect();
         } catch (Exception e) {
