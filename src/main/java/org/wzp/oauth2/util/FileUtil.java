@@ -31,26 +31,13 @@ public class FileUtil {
 
 
     /**
-     * 遍历文件夹
+     * 获取文件名
      *
-     * @param file
+     * @param url
+     * @return
      */
-    public static void traverseFile(File file) {
-        File[] dirs = file.listFiles();
-        for (File dir : dirs) {
-            if (dir.isDirectory()) {
-                traverseFile(dir);
-            } else {
-                //输出文件名称
-                String filename = dir.getName();
-                //输出文件全路径
-                String filePath = dir.getPath();
-                //输出文件的父文件名
-                String parentDirectory = dir.getParentFile().getName();
-                //输出文件父路径
-                String parentDirectoryPath = dir.getParent();
-            }
-        }
+    private static String getFileName(String url) {
+        return url.substring(url.lastIndexOf("/") + 1);
     }
 
 
@@ -235,16 +222,47 @@ public class FileUtil {
     /**
      * 通过url下载文件到本地或者服务器
      *
-     * @param url 文件url
-     * @return 返回 文件名
+     * @param url  文件网络路径
+     * @param path 本地存储文件夹路径
+     * @return
      */
-    public static String downloadFileByUrl(String url, String filePath) {
+    public static String downloadFileAsUrl(String url, String path) {
+        String fileName = getFileName(url);
+        fileExist(path);
+        String filePath = path + fileName;
+        int index = 1;
+        String returnValue = download(url, filePath, index);
+        if (returnValue.equals("404")) {
+            return "404";
+        }
+        return filePath;
+    }
+
+
+    /**
+     * @param url      文件网络路径
+     * @param filePath 文件本地存储路径
+     * @param index    重试次数
+     * @return
+     */
+    public static String download(String url, String filePath, int index) {
         fileExist(filePath);
         File file = new File(url);
         try {
-            // 建立链接
+            // 建立连接
             URL httpUrl = new URL(url);
             HttpURLConnection conn = (HttpURLConnection) httpUrl.openConnection();
+            System.out.println(conn.getResponseCode());
+            int len = conn.getContentLength();
+            if (len == -1 || conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                if (index <= 3) {
+                    System.out.println("建立连接失败，第" + index + "次重试开始......");
+                    Thread.sleep(500);
+                    download(url, filePath, index + 1);
+                } else {
+                    return "404";
+                }
+            }
             //连接指定的资源
             conn.connect();
             //获取网络输入流
@@ -263,10 +281,11 @@ public class FileUtil {
             bis.close();
             conn.disconnect();
         } catch (Exception e) {
+            System.out.println("抛出异常!!!");
             e.printStackTrace();
-            System.out.println("抛出异常！！");
         }
-        return file.getName();
+        System.out.println("下载成功!!!");
+        return "200";
     }
 
 
