@@ -224,13 +224,13 @@ public class FileUtil {
      *
      * @param url  文件网络路径
      * @param path 本地存储文件夹路径
-     * @return
+     * @return 返回文件本地存储全路径
      */
     public static String downloadFileAsUrl(String url, String path) {
         String fileName = getFileName(url);
         fileExist(path);
         String filePath = path + fileName;
-        int index = 1;
+        int index = 0;
         String returnValue = download(url, filePath, index);
         if (returnValue.equals("404")) {
             return "404";
@@ -243,7 +243,7 @@ public class FileUtil {
      * @param url      文件网络路径
      * @param filePath 文件本地存储路径
      * @param index    重试次数
-     * @return
+     * @return 返回结果 200 表示下载成功，404表示下载失败，网路文件路径不正确
      */
     public static String download(String url, String filePath, int index) {
         fileExist(filePath);
@@ -252,13 +252,12 @@ public class FileUtil {
             // 建立连接
             URL httpUrl = new URL(url);
             HttpURLConnection conn = (HttpURLConnection) httpUrl.openConnection();
-            System.out.println(conn.getResponseCode());
-            int len = conn.getContentLength();
-            if (len == -1 || conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                if (index <= 3) {
-                    System.out.println("建立连接失败，第" + index + "次重试开始......");
+            if (conn.getContentLength() == -1 || conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                if (index < 3) {
+                    index = index + 1;
+                    System.err.println("建立连接失败，第" + index + "次重试开始......");
                     Thread.sleep(500);
-                    download(url, filePath, index + 1);
+                    download(url, filePath, index);
                 } else {
                     return "404";
                 }
@@ -281,7 +280,7 @@ public class FileUtil {
             bis.close();
             conn.disconnect();
         } catch (Exception e) {
-            System.out.println("抛出异常!!!");
+            System.err.println("抛出异常!!!");
             e.printStackTrace();
         }
         System.out.println("下载成功!!!");
