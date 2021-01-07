@@ -13,7 +13,7 @@
             </filter>
             <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                 <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
-                <pattern>%yellow(%d{yyyy-MM-dd HH:mm:ss}) [%thread-%highlight(%-5level)] %green(%logger:%line) - %blue(%msg%n)</pattern>
+                <pattern>%yellow(%d{yyyy-MM-dd HH:mm:ss}) [%thread-%highlight(%-5level)] %green(%logger:%line) - %gray(%msg%n)</pattern>
             </encoder>
         </appender>
         <!-- 日志输出级别 -->
@@ -70,7 +70,9 @@
 
     <!-- 标准日志 -->
     <logger name="org.springframework" level="INFO"/>
-    <!-- 输出此包下的debug级别 -->
-    <logger name="org.wzp.oauth2.entity" level="DEBUG"/>
+    <!-- 输出包下的debug级别 -->
+    <logger name="org.wzp.oauth2.mapper" level="DEBUG"/>
+    <logger name="org.wzp.oauth2.service" level="DEBUG"/>
+    <logger name="org.wzp.oauth2.controller" level="DEBUG"/>
 
 </configuration>
