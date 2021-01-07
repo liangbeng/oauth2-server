@@ -33,11 +33,36 @@ public class FileUtil {
     /**
      * 获取文件名
      *
-     * @param url
-     * @return
+     * @param url 文件路径 G:/oauth-server/excel/1608883380852.xlsx
+     * @return 1608883380852.xlsx
      */
     private static String getFileName(String url) {
+        if (!url.contains("/")) {
+            return "";
+        }
         return url.substring(url.lastIndexOf("/") + 1);
+    }
+
+
+    /**
+     * 获取文件名
+     *
+     * @param fileName 123.zip
+     * @return 123 不包括分隔符
+     */
+    public static String getFilePrefix(String fileName) {
+        return ObjUtil.strPrefix(fileName, ".", 0);
+    }
+
+
+    /**
+     * 获取文件名后缀
+     *
+     * @param fileName 123.zip
+     * @return .zip 包括分隔符
+     */
+    public static String getFileSuffix(String fileName) {
+        return ObjUtil.strSuffix(fileName, ".", 0);
     }
 
 
@@ -83,28 +108,6 @@ public class FileUtil {
             flag = false;
         }
         return flag;
-    }
-
-
-    /**
-     * 获取文件名前缀
-     *
-     * @param fileName 123.zip
-     * @return 123 不包括分隔符
-     */
-    public static String getFilePrefix(String fileName) {
-        return ObjUtil.strPrefix(fileName, ".", 0);
-    }
-
-
-    /**
-     * 获取文件名后缀
-     *
-     * @param fileName 123.zip
-     * @return .zip 包括分隔符
-     */
-    public static String getFileSuffix(String fileName) {
-        return ObjUtil.strSuffix(fileName, ".", 0);
     }
 
 

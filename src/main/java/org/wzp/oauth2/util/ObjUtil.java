@@ -91,11 +91,11 @@ public class ObjUtil {
 
 
     /**
-     * 获取指定分隔符之前部分（不包含分隔符）
+     * 获取指定分隔符之前部分
      *
      * @param str       需要分割的字符串
-     * @param separator 分隔符
-     * @param index     偏移量>=0
+     * @param separator 分隔符，若字符串中有相同的分隔符，则以最后一个分隔符为准
+     * @param index     偏移量>=0，偏移量为0时，不包含分隔符
      * @return
      */
     public static String strPrefix(String str, String separator, Integer index) {
@@ -106,16 +106,15 @@ public class ObjUtil {
             return str.substring(0, str.lastIndexOf(separator));
         }
         return str.substring(0, str.lastIndexOf(separator) + index);
-
     }
 
 
     /**
-     * 获取指定分隔符之后部分(包含分隔符)
+     * 获取指定分隔符之后部分
      *
      * @param str       需要分割的字符串
-     * @param separator 分隔符
-     * @param index     偏移量>=0
+     * @param separator 分隔符，若字符串中有相同的分隔符，则以最后一个分隔符为准
+     * @param index     偏移量>=0，偏移量为0时，返回值包含分隔符
      * @return
      */
     public static String strSuffix(String str, String separator, Integer index) {
