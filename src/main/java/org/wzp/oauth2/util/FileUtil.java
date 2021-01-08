@@ -268,7 +268,7 @@ public class FileUtil {
                 if (index < 3) {
                     index = index + 1;
                     log.warn("建立连接失败，第{}次重试开始......", index);
-                    Thread.sleep(500);
+                    Thread.sleep(1000);
                     download(url, filePath, index);
                 } else {
                     return "404";
