@@ -37,7 +37,8 @@ public class FileUtil {
      * @return 1608883380852.xlsx
      */
     private static String getFileName(String url) {
-        if (!url.contains("/")) {
+        if (ObjUtil.isEmpty(url) || !url.contains("/")) {
+            log.error("请检查传递参数是否正确");
             return "";
         }
         return url.substring(url.lastIndexOf("/") + 1);
@@ -51,6 +52,10 @@ public class FileUtil {
      * @return 123 不包括分隔符
      */
     public static String getFilePrefix(String fileName) {
+        if (ObjUtil.isEmpty(fileName)) {
+            log.error("文件名不存在!!!");
+            return "";
+        }
         return ObjUtil.strPrefix(fileName, ".", 0);
     }
 
@@ -62,6 +67,10 @@ public class FileUtil {
      * @return .zip 包括分隔符
      */
     public static String getFileSuffix(String fileName) {
+        if (ObjUtil.isEmpty(fileName)) {
+            log.error("文件名不存在!!!");
+            return "";
+        }
         return ObjUtil.strSuffix(fileName, ".", 0);
     }
 
@@ -258,7 +267,7 @@ public class FileUtil {
             if (conn.getContentLength() == -1 || conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
                 if (index < 3) {
                     index = index + 1;
-                    System.err.println("建立连接失败，第" + index + "次重试开始......");
+                    log.warn("建立连接失败，第{}次重试开始......", index);
                     Thread.sleep(500);
                     download(url, filePath, index);
                 } else {
@@ -272,7 +281,7 @@ public class FileUtil {
             BufferedInputStream bis = new BufferedInputStream(inputStream);
             //写入到文件（注意文件保存路径的后面一定要加上文件的名称）
             FileOutputStream fos = new FileOutputStream(filePath + file.getName());
-            byte[] buf = new byte[4096];
+            byte[] buf = new byte[1024];
             int length = bis.read(buf);
             //保存文件
             while (length != -1) {
@@ -283,10 +292,10 @@ public class FileUtil {
             bis.close();
             conn.disconnect();
         } catch (Exception e) {
-            System.err.println("抛出异常!!!");
+            log.error("抛出异常!!!");
             e.printStackTrace();
         }
-        System.out.println("下载成功!!!");
+        log.info("下载成功!!!");
         return "200";
     }
 
@@ -300,7 +309,7 @@ public class FileUtil {
     public static String unZip(String filePath) throws Exception {
         File zipFile = new File(filePath);
         if (!zipFile.exists()) {
-            log.error(filePath + "不存在...");
+            log.error("{}不存在...", filePath);
             throw new Exception();
         }
         File zipExeFile = new File(CustomConfig.zipExe);
@@ -321,7 +330,7 @@ public class FileUtil {
     public static String zip(String filePath) throws Exception {
         File zipFile = new File(filePath);
         if (!zipFile.exists()) {
-            log.error(filePath + "不存在...");
+            log.error("{}不存在...", filePath);
             throw new Exception();
         }
         File zipExeFile = new File(CustomConfig.zipExe);
@@ -340,7 +349,7 @@ public class FileUtil {
         BufferedReader bd = new BufferedReader(new InputStreamReader(is));
         String line;
         while ((line = bd.readLine()) != null) {
-            System.out.println(line);
+            log.info(line);
         }
         process.waitFor();
         is.close();
