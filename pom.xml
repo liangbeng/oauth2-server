@@ -120,11 +120,11 @@
         </dependency>
 
         <!--hutool工具类-->
-        <dependency>
+        <!--<dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
             <version>5.4.3</version>
-        </dependency>
+        </dependency>-->
 
         <!-- 二维码 -->
         <dependency>
