@@ -5,9 +5,19 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.ResourceUtils;
 import org.wzp.oauth2.config.CustomConfig;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * @Author: zp.wei
@@ -15,6 +25,8 @@ import java.net.URL;
  */
 @Slf4j
 public class FileUtil {
+
+    private static final int BF_SIZE = 1024;
 
 
     /**
@@ -121,57 +133,83 @@ public class FileUtil {
 
 
     /**
-     * 复制文件
+     * 使用NIO读取文件
      *
-     * @param srcFolder  待复制文件
-     * @param destFolder 复制后的文件
+     * @param fileName 待读文件名
+     * @return
+     * @throws IOException
      */
-    public static void move(File srcFolder, File destFolder) {
-        if (!destFolder.exists()) {
-            destFolder.mkdirs();
-        }
-        File[] fileArray = srcFolder.listFiles();
-        for (File file : fileArray) {
-            if (file.isDirectory()) {
-                String folderName = file.getName();
-                File newDestFolder = new File(destFolder, folderName);
-                move(file, newDestFolder);
-            } else {
-                String fileName = file.getName();
-                File destFile = new File(destFolder, fileName);
-                copy(file, destFile);
+    public static String readFile(String fileName) {
+        long startTime = System.currentTimeMillis();
+        StringBuffer buf = new StringBuffer();
+        try {
+            FileInputStream input = new FileInputStream(fileName);
+            FileChannel channel = input.getChannel();
+            CharsetDecoder decoder = Charset.defaultCharset().newDecoder();
+            CharBuffer cBuf = CharBuffer.allocate(BF_SIZE);
+            ByteBuffer bBuf = ByteBuffer.allocate(BF_SIZE);
+            while (channel.read(bBuf) != -1) {
+                bBuf.flip();
+                // 解码，byte转char，最后一个参数非常关键
+                decoder.decode(bBuf, cBuf, false);
+                bBuf.clear();
+                buf.append(cBuf.array(), 0, cBuf.position());
+                cBuf.compact(); // 压缩
             }
+            input.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("使用NIO读取文件耗时：" + (System.currentTimeMillis() - startTime) + "毫秒");
+        }
+        return buf.toString();
+    }
+
+
+    /**
+     * 使用NIO进行文件写
+     *
+     * @param fileName 文件名称
+     * @param content  待写内存
+     * @throws IOException
+     */
+    public static void writeFile(String fileName, String content) {
+        long startTime = System.currentTimeMillis();
+        try {
+            FileOutputStream out = new FileOutputStream(fileName);
+            FileChannel channel = out.getChannel();
+            ByteBuffer buf = ByteBuffer.wrap(content.getBytes());
+            channel.write(buf);
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("使用NIO写文件耗时：" + (System.currentTimeMillis() - startTime) + "毫秒");
         }
     }
 
-    public static void copy(File file, File destFile) {
-        BufferedInputStream bis = null;
-        BufferedOutputStream bos = null;
+
+    /**
+     * 使用NIO复制一个文件
+     *
+     * @param target 源文件
+     * @param source 目标文件
+     * @throws IOException
+     */
+    public static void copyFile(String source, String target) {
+        long startTime = System.currentTimeMillis();
         try {
-            bis = new BufferedInputStream(new FileInputStream(file));
-            bos = new BufferedOutputStream(new FileOutputStream(destFile));
-            byte[] bys = new byte[1024];
-            int len = 0;
-            while ((len = bis.read(bys)) != -1) {
-                bos.write(bys, 0, len);
-            }
-        } catch (IOException e) {
+            FileInputStream fin = new FileInputStream(source);
+            FileChannel inChannel = fin.getChannel();
+            FileOutputStream fot = new FileOutputStream(target);
+            FileChannel outChannel = fot.getChannel();
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+            fin.close();
+            fot.close();
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (bis != null) {
-                try {
-                    bis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            System.out.println("使用NIO复制文件耗时：" + (System.currentTimeMillis() - startTime) + "毫秒");
         }
     }
 
@@ -301,6 +339,43 @@ public class FileUtil {
 
 
     /**
+     * 从本地服务器下载文件
+     *
+     * @param file
+     * @param response
+     */
+    public static void downloadFile(File file, HttpServletResponse response) {
+        OutputStream os = null;
+        try {
+            // 取得输出流
+            os = response.getOutputStream();
+            String contentType = Files.probeContentType(Paths.get(file.getAbsolutePath()));
+            response.setHeader("Content-Type", contentType);
+            response.setHeader("Content-Disposition", "attachment;filename=" + new String(file.getName().getBytes("utf-8"), "ISO8859-1"));
+            FileInputStream fileInputStream = new FileInputStream(file);
+            WritableByteChannel writableByteChannel = Channels.newChannel(os);
+            FileChannel fileChannel = fileInputStream.getChannel();
+            fileChannel.transferTo(0, fileChannel.size(), writableByteChannel);
+            fileChannel.close();
+            os.flush();
+            writableByteChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //文件的关闭放在finally中
+        finally {
+            try {
+                if (os != null) {
+                    os.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    /**
      * 调用7z进行解压
      *
      * @param filePath 文件路径
@@ -356,6 +431,7 @@ public class FileUtil {
         bd.close();
         process.destroy();
     }
+
 
 
 }
