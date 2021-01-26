@@ -1,7 +1,5 @@
 package org.wzp.oauth2;
 
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,15 +21,11 @@ import org.wzp.oauth2.entity.User;
 import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.util.ObjUtil;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 class AuthApplicationTests {
@@ -128,13 +122,6 @@ class AuthApplicationTests {
         System.out.println(mapIPage);
     }
 
-    @Test
-    void zip() {
-        File file = ZipUtil.zip("G:\\wuliangye_game", "G:\\wuliangye_game1", true);
-        String filePath = file.getPath();
-        System.out.println(filePath);
-    }
-
 
     @Test
     void copyOnWriteArrayList() {
@@ -155,9 +142,9 @@ class AuthApplicationTests {
     }
 
     @Test
-    void subString(){
+    void subString() {
         String a = "1234567890";
-        String b = ObjUtil.subString(a,5);
+        String b = ObjUtil.subString(a, 5);
         System.out.println(b);
     }
 
