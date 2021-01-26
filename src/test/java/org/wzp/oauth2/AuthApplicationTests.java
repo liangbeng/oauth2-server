@@ -1,7 +1,5 @@
 package org.wzp.oauth2;
 
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.ZipUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -126,13 +124,6 @@ class AuthApplicationTests {
         queryWrapper.select("id", "name");
         IPage<Map<String, Object>> mapIPage = userMapper.selectMapsPage(page, queryWrapper);
         System.out.println(mapIPage);
-    }
-
-    @Test
-    void zip() {
-        File file = ZipUtil.zip("G:\\wuliangye_game", "G:\\wuliangye_game1", true);
-        String filePath = file.getPath();
-        System.out.println(filePath);
     }
 
 
