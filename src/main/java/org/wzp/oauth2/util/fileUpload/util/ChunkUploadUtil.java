@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @Author: wq.li
+ * @Author: zp.wei
  * @DATE: 2020/8/7 10:16
  */
 public class ChunkUploadUtil {

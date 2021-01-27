@@ -5,6 +5,10 @@ import java.nio.channels.FileChannel;
 import java.util.*;
 
 
+/**
+ * @Author: zp.wei
+ * @DATE: 2020/8/7 10:16
+ */
 public class ChunkFileUtil {
 
     public static final String Chunk_Delimiter = "-";
