@@ -24,9 +24,9 @@ import java.util.Map;
 @RequestMapping("/back/Mqtt")
 public class MqttController extends BaseConfig {
 
-
     @Autowired
     private MqttGateway mqttGateway;
+
 
     @ApiOperation("向默认主题发送消息")
     @PostMapping("/defaultTopic")
