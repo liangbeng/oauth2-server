@@ -16,8 +16,11 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 /**
  * @Author: zp.wei
@@ -133,14 +136,13 @@ public class FileUtil {
 
 
     /**
-     * 使用NIO读取文件
+     * 读取文件
      *
      * @param fileName 待读文件名
      * @return
      * @throws IOException
      */
     public static String readFile(String fileName) {
-        long startTime = System.currentTimeMillis();
         StringBuffer buf = new StringBuffer();
         try {
             FileInputStream input = new FileInputStream(fileName);
@@ -150,66 +152,70 @@ public class FileUtil {
             ByteBuffer bBuf = ByteBuffer.allocate(BF_SIZE);
             while (channel.read(bBuf) != -1) {
                 bBuf.flip();
-                // 解码，byte转char，最后一个参数非常关键
                 decoder.decode(bBuf, cBuf, false);
                 bBuf.clear();
                 buf.append(cBuf.array(), 0, cBuf.position());
-                cBuf.compact(); // 压缩
+                cBuf.compact();
             }
             input.close();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            System.out.println("使用NIO读取文件耗时：" + (System.currentTimeMillis() - startTime) + "毫秒");
         }
         return buf.toString();
     }
 
 
     /**
-     * 使用NIO进行文件写
+     * 写文件
      *
-     * @param fileName 文件名称
-     * @param content  待写内存
-     * @throws IOException
+     * @param filename   目标文件
+     * @param content    待写入内容
+     * @param additional 是否是追加写入
      */
-    public static void writeFile(String fileName, String content) {
-        long startTime = System.currentTimeMillis();
+    public static void writeFile(String filename, String content, Boolean additional) {
         try {
-            FileOutputStream out = new FileOutputStream(fileName);
-            FileChannel channel = out.getChannel();
-            ByteBuffer buf = ByteBuffer.wrap(content.getBytes());
-            channel.write(buf);
-            out.close();
-        } catch (Exception e) {
+            File file = new File(filename);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            Path path = Paths.get(filename);
+            BufferedWriter writer;
+            if (additional) {
+                writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+            } else {
+                writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8);
+            }
+            writer.write(content);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            System.out.println("使用NIO写文件耗时：" + (System.currentTimeMillis() - startTime) + "毫秒");
         }
     }
 
 
     /**
-     * 使用NIO复制一个文件
+     * 复制文件
      *
-     * @param target 源文件
-     * @param source 目标文件
+     * @param sourceFile 待复制文件
+     * @param targetFile 待写入文件
      * @throws IOException
      */
-    public static void copyFile(String source, String target) {
-        long startTime = System.currentTimeMillis();
+    public static void copyFile(String sourceFile, String targetFile) {
         try {
-            FileInputStream fin = new FileInputStream(source);
-            FileChannel inChannel = fin.getChannel();
-            FileOutputStream fot = new FileOutputStream(target);
-            FileChannel outChannel = fot.getChannel();
+            File file = new File(sourceFile);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileInputStream fis = new FileInputStream(sourceFile);
+            FileChannel inChannel = fis.getChannel();
+            FileOutputStream fos = new FileOutputStream(targetFile);
+            FileChannel outChannel = fos.getChannel();
             inChannel.transferTo(0, inChannel.size(), outChannel);
-            fin.close();
-            fot.close();
+            fis.close();
+            fos.close();
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            System.out.println("使用NIO复制文件耗时：" + (System.currentTimeMillis() - startTime) + "毫秒");
         }
     }
 
@@ -431,7 +437,6 @@ public class FileUtil {
         bd.close();
         process.destroy();
     }
-
 
 
 }
