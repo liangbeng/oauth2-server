@@ -179,10 +179,7 @@ public class FileUtil {
      */
     public static void writeFile(String filename, String content, Boolean additional) {
         try {
-            File file = new File(filename);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
+            fileExist(filename);
             Path path = Paths.get(filename);
             BufferedWriter writer;
             if (additional) {
@@ -349,32 +346,19 @@ public class FileUtil {
      * @param response
      */
     public static void downloadFile(File file, HttpServletResponse response) {
-        OutputStream os = null;
-        try {
-            // 取得输出流
-            os = response.getOutputStream();
+        try (OutputStream os = response.getOutputStream()) {
             String contentType = Files.probeContentType(Paths.get(file.getAbsolutePath()));
             response.setHeader("Content-Type", contentType);
             response.setHeader("Content-Disposition", "attachment;filename=" + new String(file.getName().getBytes("utf-8"), "ISO8859-1"));
             FileInputStream fileInputStream = new FileInputStream(file);
-            WritableByteChannel writableByteChannel = Channels.newChannel(os);
-            FileChannel fileChannel = fileInputStream.getChannel();
-            fileChannel.transferTo(0, fileChannel.size(), writableByteChannel);
-            fileChannel.close();
+            WritableByteChannel wc = Channels.newChannel(os);
+            FileChannel channel = fileInputStream.getChannel();
+            channel.transferTo(0, channel.size(), wc);
+            channel.close();
             os.flush();
-            writableByteChannel.close();
+            wc.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        //文件的关闭放在finally中
-        finally {
-            try {
-                if (os != null) {
-                    os.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
