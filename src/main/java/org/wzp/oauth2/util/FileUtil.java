@@ -261,17 +261,10 @@ public class FileUtil {
         String newName = oldFile.getParent() + File.separator + filePrefix + "_" + index + FileUtil.getFileSuffix(oldFile.getPath());
         File newFile = new File(newName);
         if (newFile.exists()) {
-            log.warn("该文件名存在");
-            index += 1;
-            rename(oldFile, filePrefix, index);
+            rename(oldFile, filePrefix, index + 1);
         }
-        if (oldFile.renameTo(newFile)) {
-            log.info("已重命名");
-        } else {
-            log.error("文件重命名失败");
-        }
-        index += 1;
-        return index;
+        oldFile.renameTo(newFile);
+        return index + 1;
     }
 
 
