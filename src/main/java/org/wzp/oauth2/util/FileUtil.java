@@ -31,6 +31,11 @@ public class FileUtil {
 
     private static final int BF_SIZE = 1024;
 
+    private static final String HTTP_200 = "200";
+    private static final String HTTP_404 = "404";
+
+    private static int TRY_NUMBER = 3;
+
 
     /**
      * 判断文件是否存在，不存在则创建
@@ -281,8 +286,8 @@ public class FileUtil {
         String filePath = path + fileName;
         int index = 0;
         String returnValue = download(url, filePath, index);
-        if (returnValue.equals("404")) {
-            return "404";
+        if (returnValue.equals(HTTP_404)) {
+            return HTTP_404;
         }
         return filePath;
     }
@@ -302,13 +307,13 @@ public class FileUtil {
             URL httpUrl = new URL(url);
             HttpURLConnection conn = (HttpURLConnection) httpUrl.openConnection();
             if (conn.getContentLength() == -1 || conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                if (index < 3) {
+                if (index < TRY_NUMBER) {
                     index = index + 1;
                     log.warn("建立连接失败，第{}次重试开始......", index);
                     Thread.sleep(1000);
                     download(url, filePath, index);
                 } else {
-                    return "404";
+                    return HTTP_404;
                 }
             }
             //连接指定的资源
@@ -333,7 +338,7 @@ public class FileUtil {
             e.printStackTrace();
         }
         log.info("下载成功!!!");
-        return "200";
+        return HTTP_200;
     }
 
 
