@@ -155,7 +155,7 @@ public class DateUtil {
      * @return
      */
     public static Long lastDayTimeOfWeek() {
-        return localDate().plusWeeks(1).atStartOfDay(ZoneOffset.ofHours(8)).minusSeconds(1L).toInstant().toEpochMilli();
+        return localDate().plusWeeks(1).with(DayOfWeek.MONDAY).atStartOfDay(ZoneOffset.ofHours(8)).minusSeconds(1L).toInstant().toEpochMilli();
     }
 
 
