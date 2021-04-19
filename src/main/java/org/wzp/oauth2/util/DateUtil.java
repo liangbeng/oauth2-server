@@ -175,7 +175,7 @@ public class DateUtil {
      * @return
      */
     public static Long lastDayTimeOfMonth() {
-        return localDate().plusMonths(1).atStartOfDay(ZoneOffset.ofHours(8)).minusSeconds(1L).toInstant().toEpochMilli();
+        return localDate().plusMonths(1).withDayOfMonth(1).atStartOfDay(ZoneOffset.ofHours(8)).minusSeconds(1L).toInstant().toEpochMilli();
     }
 
 
@@ -195,7 +195,7 @@ public class DateUtil {
      * @return
      */
     public static Long lastDayTimeOfYear() {
-        return localDate().plusYears(1).atStartOfDay(ZoneOffset.ofHours(8)).minusSeconds(1L).toInstant().toEpochMilli();
+        return localDate().plusYears(1).withDayOfYear(1).atStartOfDay(ZoneOffset.ofHours(8)).minusSeconds(1L).toInstant().toEpochMilli();
     }
 
 
