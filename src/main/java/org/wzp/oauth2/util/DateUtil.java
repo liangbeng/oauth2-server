@@ -177,6 +177,16 @@ public class DateUtil {
     public static Long lastDayTimeOfMonth() {
         return localDate().plusMonths(1).withDayOfMonth(1).atStartOfDay(ZoneOffset.ofHours(8)).minusSeconds(1L).toInstant().toEpochMilli();
     }
+    
+    
+     /**
+     * 获取上月第一天的零点时间戳
+     *
+     * @return
+     */
+    public static Long startDayTimeOfLastMonth() {
+        return localDate().minusMonths(1).withDayOfMonth(1).atStartOfDay(ZoneOffset.ofHours(8)).toInstant().toEpochMilli();
+    }
 
 
     /**
