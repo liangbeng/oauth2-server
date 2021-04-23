@@ -113,8 +113,8 @@ public class IpUtil {
      * @param ip
      * @return
      */
-    public static List getProvinceAndCity(String ip) {
-        List<String> list = new ArrayList();
+    public static Map<String, String> getProvinceAndCity(String ip) {
+        Map<String, String> map = new HashMap<>(2);
         String[] splitIpString = splitIpString(ip);
         String province = splitIpString[2].replaceAll("\\|", "");
         String city = splitIpString[3].replaceAll("\\|", "");
@@ -123,9 +123,9 @@ public class IpUtil {
         if (city.equals("0")) {
             city = splitIpString[2].replaceAll("\\|", "");
         }
-        list.add(province);
-        list.add(city);
-        return list;
+        map.put("province", province);
+        map.put("city", city);
+        return map;
     }
 
 
