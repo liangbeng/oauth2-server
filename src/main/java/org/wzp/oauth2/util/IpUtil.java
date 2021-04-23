@@ -156,6 +156,7 @@ public class IpUtil {
             DbSearcher searcher = new DbSearcher(config, dbPath);
             Method method = searcher.getClass().getMethod("btreeSearch", String.class);
             DataBlock dataBlock = (DataBlock) method.invoke(searcher, ip);
+            searcher.close();
             return dataBlock.getRegion();
         } catch (Exception e) {
             e.printStackTrace();
