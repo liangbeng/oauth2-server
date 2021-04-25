@@ -13,13 +13,14 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.wzp.oauth2.config.CustomConfig;
 import org.wzp.oauth2.util.*;
 import org.wzp.oauth2.enumeration.ResultCodeEnum;
+import org.wzp.oauth2.util.fileUpload.util.ChunkUploadUtil;
+import org.wzp.oauth2.util.fileUpload.vo.CheckMd5FileVO;
+import org.wzp.oauth2.util.fileUpload.vo.UploadVO;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -156,6 +157,33 @@ public class CommonController {
                 stream.close();
             }
         }
+    }
+
+
+    /**
+     * 文件检查
+     *
+     * @param md5FileVO
+     * @return
+     */
+    @PostMapping("/check")
+    @ApiOperation("文件上传检查")
+    public Result check(@RequestBody CheckMd5FileVO md5FileVO) {
+        return ChunkUploadUtil.check(md5FileVO);
+    }
+
+
+    /**
+     * 文件上传
+     *
+     * @param file
+     * @param uploadVO
+     * @return
+     */
+    @PostMapping("/fileUpload")
+    @ApiOperation("文件上传")
+    public Result fileUpload(@RequestParam("file") MultipartFile file, UploadVO uploadVO) {
+        return ChunkUploadUtil.upload(file, uploadVO);
     }
 
 
