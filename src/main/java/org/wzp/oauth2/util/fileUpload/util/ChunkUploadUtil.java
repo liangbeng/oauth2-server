@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.wzp.oauth2.config.CustomConfig;
 import org.wzp.oauth2.enumeration.ResultCodeEnum;
 import org.wzp.oauth2.util.FileUtil;
+import org.wzp.oauth2.util.Result;
 import org.wzp.oauth2.util.fileUpload.vo.CheckMd5FileVO;
 import org.wzp.oauth2.util.fileUpload.vo.FileVO;
 import org.wzp.oauth2.util.fileUpload.vo.UploadVO;
@@ -23,7 +24,7 @@ public class ChunkUploadUtil {
 
 
     private static String checkFileSavePath() {
-        String fileSavePath = savePath + File.separator + "file";
+        String fileSavePath = savePath;
         File file = new File(fileSavePath);
         if (!file.exists()) {
             file.mkdirs();
@@ -32,18 +33,13 @@ public class ChunkUploadUtil {
     }
 
 
-    public static FileVO upload(MultipartFile file, UploadVO uploadVO) throws CustomException {
+    public static Result upload(MultipartFile file, UploadVO uploadVO) {
         Long chunk = uploadVO.getChunk();
-        try {
-            // 没有分片
-            if (chunk == null) {
-                return unChunkUpload(file, uploadVO);
-            } else {
-                return ChunkUpload(file, uploadVO);
-            }
-        } catch (CustomException e) {
-            throw e;
+        // 没有分片
+        if (chunk == null) {
+            return unChunkUpload(file, uploadVO);
         }
+        return ChunkUpload(file, uploadVO);
     }
 
 
@@ -53,9 +49,10 @@ public class ChunkUploadUtil {
      * @param md5FileVO
      * @return FileVO
      */
-    public static FileVO check(CheckMd5FileVO md5FileVO) throws CustomException {
-        if (md5FileVO.getType() == null || md5FileVO.getChunk() == null || md5FileVO.getFileMd5() == null || md5FileVO.getSuffix() == null || md5FileVO.getFileName() == null) {
-            throw new CustomException(ResultCodeEnum.LACK_NEEDS_PARAM);
+    public static Result check(CheckMd5FileVO md5FileVO) {
+        if (md5FileVO.getType() == null || md5FileVO.getChunk() == null || md5FileVO.getFileMd5() == null ||
+                md5FileVO.getSuffix() == null || md5FileVO.getFileName() == null) {
+            return Result.error(ResultCodeEnum.LACK_NEEDS_PARAM);
         }
         Integer type = md5FileVO.getType();
         Long chunk = md5FileVO.getChunk();
@@ -67,9 +64,9 @@ public class ChunkUploadUtil {
             String destFilePath = fileSavePath + File.separator + fileName;
             File destFile = new File(destFilePath);
             if (destFile.exists() && destFile.length() == fileSize) {
-                return new FileVO(fileName, fileSize);
+                return Result.ok(new FileVO(fileName, fileSize));
             } else {
-                throw new CustomException(ResultCodeEnum.FILE_NOT_EXISTS);
+                return Result.error(ResultCodeEnum.FILE_NOT_EXISTS);
             }
         } else {// 分片校验
             String fileMd5 = md5FileVO.getFileMd5();
@@ -78,9 +75,9 @@ public class ChunkUploadUtil {
             String destFilePath = destFileDir + File.separator + destFileName;
             File destFile = new File(destFilePath);
             if (destFile.exists() && destFile.length() == fileSize) {
-                throw new CustomException(ResultCodeEnum.CHUNK_EXISTS);
+                return Result.error(ResultCodeEnum.CHUNK_EXISTS);
             } else {
-                throw new CustomException(ResultCodeEnum.CHUNK_NOT_EXISTS);
+                return Result.error(ResultCodeEnum.CHUNK_NOT_EXISTS);
             }
         }
     }
@@ -93,7 +90,7 @@ public class ChunkUploadUtil {
      * @param uploadVO
      * @return FileVO
      */
-    public static FileVO unChunkUpload(MultipartFile file, UploadVO uploadVO) throws CustomException {
+    public static Result unChunkUpload(MultipartFile file, UploadVO uploadVO) {
         String suffix = uploadVO.getSuffix();
         String fileName = uploadVO.getFileMd5() + "." + suffix;
         //判断文件存放目录是否存在
@@ -111,12 +108,12 @@ public class ChunkUploadUtil {
             }
             try {
                 file.transferTo(destFile);
-                return new FileVO(fileName);
+                return Result.ok(new FileVO(fileName));
             } catch (Exception e) {
-                throw new CustomException(ResultCodeEnum.FILE_UPLOAD_ERROR);
+                return Result.error(ResultCodeEnum.FILE_UPLOAD_ERROR);
             }
         }
-        throw new CustomException(ResultCodeEnum.UPLOAD_FAIL);
+        return Result.error(ResultCodeEnum.UPLOAD_FAIL);
     }
 
 
@@ -127,7 +124,7 @@ public class ChunkUploadUtil {
      * @param uploadVO
      * @return FileVO
      */
-    public static FileVO ChunkUpload(MultipartFile file, UploadVO uploadVO) throws CustomException {
+    public static Result ChunkUpload(MultipartFile file, UploadVO uploadVO) {
         String fileMd5 = uploadVO.getFileMd5();
         String fileName = fileMd5 + "." + uploadVO.getSuffix();
         Long chunk = uploadVO.getChunk();// 当前片
@@ -147,7 +144,7 @@ public class ChunkUploadUtil {
         try {
             file.transferTo(chunkFile);
         } catch (Exception e) {
-            throw new CustomException(ResultCodeEnum.CHUNK_UPLOAD_ERROR);
+            return Result.error(ResultCodeEnum.CHUNK_UPLOAD_ERROR);
         }
         // 合并分片
         Long chunkSize = uploadVO.getChunkSize();
@@ -158,15 +155,15 @@ public class ChunkUploadUtil {
             try {
                 ChunkFileUtil.randomAccessFile(chunkFile, destFile, seek);
             } catch (IOException e) {
-                throw new CustomException(ResultCodeEnum.CHUNK_MERGE_FAIL);
+                return Result.error(ResultCodeEnum.CHUNK_MERGE_FAIL);
             }
         }
         if (chunk == chunks - 1) {
             // 删除分片文件夹
             FileUtil.deleteFolder(new File(chunkFilePath));
-            return new FileVO(fileName);
+            return Result.ok(new FileVO(fileName));
         } else {
-            throw new CustomException(ResultCodeEnum.UPLOADING);
+            return Result.error(ResultCodeEnum.UPLOADING);
         }
     }
 
