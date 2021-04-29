@@ -19,6 +19,7 @@ public class Oauth2ServerApplication {
         SpringApplication.run(Oauth2ServerApplication.class, args);
     }
 
+    //springboot1.4版本以后需要在启动器里自定义RestTemplate,即在启动器中加入如下代码即可在类中正常使用@Autowired进行注入
     @Bean
     RestTemplate restTemplate() {
         return new RestTemplate();
