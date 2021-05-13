@@ -22,7 +22,7 @@ import java.time.Duration;
  * @DATE: 2020/10/13 13:57
  */
 @Configuration
-@AutoConfigureAfter(RedisAutoConfiguration.class) // 在加载配置的类之后再加载当前类
+@AutoConfigureAfter(RedisAutoConfiguration.class)  // 在加载配置的类之后再加载当前类
 public class RedisConfig {
 
 
