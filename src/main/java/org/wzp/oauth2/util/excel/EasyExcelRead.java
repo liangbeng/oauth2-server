@@ -1,4 +1,4 @@
-package org.wzp.oauth2.service.impl;
+package org.wzp.oauth2.util.excel;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
@@ -16,7 +16,7 @@ import java.util.List;
  * @DATE: 2020/12/23 9:41
  */
 @Slf4j
-public class UserEasyExcelRead extends AnalysisEventListener<User> {
+public class EasyExcelRead extends AnalysisEventListener<User> {
 
     /**
      * 每隔3000条存储数据库，实际使用中可以3000条，然后清理list ，方便内存回收

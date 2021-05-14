@@ -27,8 +27,8 @@ import org.wzp.oauth2.mapper.UserMapper;
 import org.wzp.oauth2.mapper.UserRoleMapper;
 import org.wzp.oauth2.service.UserEasyExcelWriteService;
 import org.wzp.oauth2.service.UserExcelService;
-import org.wzp.oauth2.service.impl.UserEasyExcelRead;
 import org.wzp.oauth2.util.*;
+import org.wzp.oauth2.util.excel.EasyExcelRead;
 import org.wzp.oauth2.vo.IdVO;
 import org.wzp.oauth2.vo.LoginVO;
 import org.wzp.oauth2.vo.UpdatePasswordVO;
@@ -404,7 +404,7 @@ public class UserController extends BaseConfig {
 //        EasyExcel.read(filename, User.class, new UserEasyExcelRead()).sheet().doRead();
 
         //读取多个sheet
-        EasyExcel.read(filename, User.class, new UserEasyExcelRead()).doReadAll();
+        EasyExcel.read(filename, User.class, new EasyExcelRead()).doReadAll();
         return Result.ok(ResultCodeEnum.EXCEL_IMPORT_SUCCESS);
     }
 
